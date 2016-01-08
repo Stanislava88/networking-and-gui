@@ -23,9 +23,10 @@ public class DownloadAgentTest {
         DownloadAgent da = new DownloadAgent();
         da.downloadFile("https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Cat_poster_1.jpg/1920px-Cat_poster_1.jpg");
 
-        BufferedImage expImage =
-                ImageIO.read(new URL("https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Cat_poster_1.jpg/1920px-Cat_poster_1.jpg").openStream());
+
+        BufferedImage expImage = ImageIO.read(new URL("https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Cat_poster_1.jpg/1920px-Cat_poster_1.jpg").openStream());
         byte[] expectedImage = ((DataBufferByte) expImage.getData().getDataBuffer()).getData();
+
         BufferedImage downImage = ImageIO.read(new File("1920px-Cat_poster_1.jpg"));
         byte[] downloadedImage = ((DataBufferByte) downImage.getData().getDataBuffer()).getData();
 
@@ -33,7 +34,7 @@ public class DownloadAgentTest {
         assertThat(downloadedImage, is(equalTo(expectedImage)));
     }
 
-    
+
 
 
 }
