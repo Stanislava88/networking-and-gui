@@ -4,7 +4,10 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -15,7 +18,8 @@ public class ProgressBarTest {
 
     @Test
     public void successfulPrinting() {
-        ProgressBar progressBar = new ProgressBar(39990);
+        ProgressBarImplementation progressBar = new ProgressBarImplementation();
+        progressBar.fullSize(39990);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PrintStream newOut = new PrintStream(baos);
@@ -40,7 +44,8 @@ public class ProgressBarTest {
         PrintStream oldOut = System.out;
 
         System.setOut(newOut);
-        ProgressBar progressBar = new ProgressBar(-1);
+        ProgressBarImplementation progressBar = new ProgressBarImplementation();
+        progressBar.fullSize(-1);
         progressBar.addProgress(39990);
         String output = baos.toString();
 
@@ -50,4 +55,27 @@ public class ProgressBarTest {
 
         assertThat(output, is("Undetermined size\n"));
     }
+
+//    example of callLog pattern
+//    interface Job {
+//        void apply();
+//    }
+//
+//
+//    @Test
+//    public void ad() {
+//        StringBuilder callLog = new StringBuilder();
+//        Job fakeJob = () -> callLog.append("a");
+//
+//        List<Integer> progressUpdates = Arrays.asList(4, 8, 20, 70, 90, 100);
+//
+//        testMethod(fakeJob);
+//
+//        assertThat(callLog.toString(), is(equalTo("a")));
+//    }
+//
+//
+//    private void testMethod(Job job) {
+//        job.apply();
+//    }
 }
