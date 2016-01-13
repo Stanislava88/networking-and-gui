@@ -19,7 +19,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 public class DownloadAgentTest {
 
     @Test
-    public void successfulImageDownload() throws IOException {
+    public void successfulDownload() throws IOException {
         DownloadAgent da = new DownloadAgent();
         da.downloadFile("https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Cat_poster_1.jpg/1920px-Cat_poster_1.jpg");
 
@@ -33,8 +33,6 @@ public class DownloadAgentTest {
 
         assertThat(downloadedImage, is(equalTo(expectedImage)));
     }
-
-
 
 
 }
