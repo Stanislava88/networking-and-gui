@@ -4,10 +4,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -26,7 +23,7 @@ public class ProgressBarTest {
         PrintStream oldOut = System.out;
 
         System.setOut(newOut);
-        progressBar.addProgress(39990);
+        progressBar.updateProgress(39990);
         String output = baos.toString();
 
         System.out.flush();
@@ -46,7 +43,7 @@ public class ProgressBarTest {
         System.setOut(newOut);
         ProgressBarImplementation progressBar = new ProgressBarImplementation();
         progressBar.fullSize(-1);
-        progressBar.addProgress(39990);
+        progressBar.updateProgress(39990);
         String output = baos.toString();
 
         System.out.flush();

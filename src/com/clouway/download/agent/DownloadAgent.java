@@ -12,7 +12,7 @@ import java.net.URLConnection;
  */
 public class DownloadAgent {
 
-    public byte[] downloadFile(String url, ProgressBar pb) {
+    public void downloadFile(String url, ProgressBar pb) {
         try {
             URL url1 = new URL(url);
             URLConnection connection = url1.openConnection();
@@ -20,31 +20,27 @@ public class DownloadAgent {
             pb.fullSize(connection.getContentLength());
 
             InputStream in = new BufferedInputStream(connection.getInputStream());
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            FileOutputStream fileOut = new FileOutputStream(fileName(url1.getFile()));
             byte[] buf = new byte[2048];
             int n;
             while (-1 != (n = in.read(buf))) {
-                pb.addProgress(n);
-                out.write(buf, 0, n);
+                pb.updateProgress(n);
+                fileOut.write(buf);
             }
-            FileOutputStream fileOut = new FileOutputStream(fileName(url1.getFile()));
-            byte[] result = out.toByteArray();
-            fileOut.write(result);
+
 
             fileOut.close();
             in.close();
-            out.close();
-            return result;
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
     }
 
     private String fileName(String file) {
         String[] files = file.split("/");
 
-        return files[files.length - 1];
+        return "Download"+files[files.length - 1];
     }
 }

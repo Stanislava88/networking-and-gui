@@ -5,7 +5,7 @@ package com.clouway.download.agent;
  */
 public interface ProgressBar {
 
-    void addProgress(long progressSize);
+    void updateProgress(long progressSize);
 
     void fullSize(long contentLength);
 

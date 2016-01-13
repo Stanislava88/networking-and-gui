@@ -11,7 +11,7 @@ public class ProgressBarImplementation implements ProgressBar {
     private long progress;
 
 
-    public void addProgress(long progressSize) {
+    public void updateProgress(long progressSize) {
         progress += progressSize;
         if (!undeterminedSize) {
             printProgress();
