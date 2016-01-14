@@ -16,14 +16,13 @@ public class ProgressBarTest {
     @Test
     public void successfulPrinting() {
         ProgressBarImplementation progressBar = new ProgressBarImplementation();
-        progressBar.fullSize(39990);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         PrintStream newOut = new PrintStream(baos);
         PrintStream oldOut = System.out;
 
         System.setOut(newOut);
-        progressBar.updateProgress(39990);
+        progressBar.updateProgress(100);
         String output = baos.toString();
 
         System.out.flush();
@@ -32,26 +31,6 @@ public class ProgressBarTest {
         assertThat(output, is("100%\n"));
     }
 
-    @Test
-    public void illegalSize() {
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        PrintStream newOut = new PrintStream(baos);
-        PrintStream oldOut = System.out;
-
-        System.setOut(newOut);
-        ProgressBarImplementation progressBar = new ProgressBarImplementation();
-        progressBar.fullSize(-1);
-        progressBar.updateProgress(39990);
-        String output = baos.toString();
-
-        System.out.flush();
-        System.setOut(oldOut);
-
-
-        assertThat(output, is("Undetermined size\n"));
-    }
 
 //    example of callLog pattern
 //    interface Job {

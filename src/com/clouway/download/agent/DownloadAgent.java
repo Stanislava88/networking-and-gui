@@ -17,17 +17,31 @@ public class DownloadAgent {
             URL url1 = new URL(url);
             URLConnection connection = url1.openConnection();
             connection.connect();
-            pb.fullSize(connection.getContentLength());
+            float contentLength = connection.getContentLength();
+            boolean undefinedLength = contentLength < 0;
+            float onePercent = contentLength / 100;
+            int progress = 0;
 
             InputStream in = new BufferedInputStream(connection.getInputStream());
             FileOutputStream fileOut = new FileOutputStream(fileName(url1.getFile()));
             byte[] buf = new byte[2048];
             int n;
-            while (-1 != (n = in.read(buf))) {
-                pb.updateProgress(n);
-                fileOut.write(buf);
-            }
 
+            while (-1 != (n = in.read(buf))) {
+                if (!undefinedLength) {
+                    progress += n;
+                    int percent = Math.round(progress / onePercent);
+                    if (percent != 100) {
+                        pb.updateProgress(percent);
+                    }
+                }
+
+
+                fileOut.write(buf, 0, n);
+            }
+            if (progress == contentLength) {
+                pb.updateProgress(100);
+            }
 
             fileOut.close();
             in.close();
@@ -41,6 +55,6 @@ public class DownloadAgent {
     private String fileName(String file) {
         String[] files = file.split("/");
 
-        return "Download"+files[files.length - 1];
+        return "Download" + files[files.length - 1];
     }
 }
