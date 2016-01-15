@@ -36,7 +36,6 @@ public class DownloadAgentTest {
         byte[] expectedImage = imageToByteArray(resource.toString());
         byte[] downloadedImage = imageToByteArray(this.getClass().getResource("/Download1920px-Cat_poster_1.jpg").toString());
 
-
         assertArrayEquals(expectedImage, downloadedImage);
     }
 

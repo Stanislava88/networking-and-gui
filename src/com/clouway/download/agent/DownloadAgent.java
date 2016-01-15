@@ -14,8 +14,8 @@ public class DownloadAgent {
 
     public void downloadFile(String url, ProgressBar pb) {
         try {
-            URL url1 = new URL(url);
-            URLConnection connection = url1.openConnection();
+            URL targetURL = new URL(url);
+            URLConnection connection = targetURL.openConnection();
             connection.connect();
             float contentLength = connection.getContentLength();
             boolean undefinedLength = contentLength < 0;
@@ -23,7 +23,7 @@ public class DownloadAgent {
             int progress = 0;
 
             InputStream in = new BufferedInputStream(connection.getInputStream());
-            FileOutputStream fileOut = new FileOutputStream(fileName(url1.getFile()));
+            FileOutputStream fileOut = new FileOutputStream(fileName(targetURL.getFile()));
             byte[] buf = new byte[2048];
             int n;
 
