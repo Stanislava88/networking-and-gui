@@ -32,7 +32,7 @@ public class DownloadAgentTest {
             atLeast(1).of(pb).updateProgress(with(any(Integer.class)));
         }});
 
-        da.downloadFile(resource.toString(), pb);
+        da.downloadFile(resource, pb);
         byte[] expectedImage = imageToByteArray(resource.toString());
         byte[] downloadedImage = imageToByteArray(this.getClass().getResource("/Download1920px-Cat_poster_1.jpg").toString());
 
@@ -46,7 +46,7 @@ public class DownloadAgentTest {
         List<Integer> expected = Arrays.asList(77, 100);
         List<Integer> actual = new ArrayList<>();
         ProgressBar pb = actual::add;
-        da.downloadFile(this.getClass().getResource("/lorem_Ipsum").toString(), pb);
+        da.downloadFile(this.getClass().getResource("/lorem_Ipsum"), pb);
         assertArrayEquals(expected.toArray(), actual.toArray());
     }
 

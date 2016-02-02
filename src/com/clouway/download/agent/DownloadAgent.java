@@ -12,9 +12,8 @@ import java.net.URLConnection;
  */
 public class DownloadAgent {
 
-    public void downloadFile(String url, ProgressBar pb) {
+    public void downloadFile(URL targetURL, ProgressBar pb) {
         try {
-            URL targetURL = new URL(url);
             URLConnection connection = targetURL.openConnection();
             connection.connect();
             float contentLength = connection.getContentLength();
