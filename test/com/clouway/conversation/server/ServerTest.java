@@ -2,9 +2,7 @@ package com.clouway.conversation.server;
 
 import com.clouway.conversation.time.Clock;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.jmock.auto.Mock;
-import org.jmock.integration.junit4.JUnit4Mockery;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Before;
@@ -43,8 +41,7 @@ public class ServerTest {
     @Before
     public void setUp() {
         server = new Server(clock);
-        format = new SimpleDateFormat("dd/MM/yyyy");
-        date = new Date();
+        date = new Date(116, 0, 15);
 
     }
 
@@ -63,7 +60,7 @@ public class ServerTest {
         }});
         String fromServer = readFromServer(port);
 
-        String expected = "Hello! " + format.format(date);
+        String expected = "Hello! 15/01/2016";
 
         assertThat(fromServer, is(equalTo(expected)));
 
