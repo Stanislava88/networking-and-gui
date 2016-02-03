@@ -30,6 +30,7 @@ public class ServerTest {
     Server server = null;
     final int port = 1414;
     SimpleDateFormat format = null;
+    Date date = null;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {{
@@ -43,6 +44,7 @@ public class ServerTest {
     public void setUp() {
         server = new Server(clock);
         format = new SimpleDateFormat("dd/MM/yyyy");
+        date = new Date();
 
     }
 
@@ -57,11 +59,11 @@ public class ServerTest {
 
         context.checking(new Expectations() {{
             oneOf(clock).getTime();
-            will(returnValue(new Date()));
+            will(returnValue(date));
         }});
         String fromServer = readFromServer(port);
 
-        String expected = "Hello! " + format.format(new Date());
+        String expected = "Hello! " + format.format(date);
 
         assertThat(fromServer, is(equalTo(expected)));
 
