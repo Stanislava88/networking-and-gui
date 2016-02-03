@@ -1,22 +1,22 @@
 package com.clouway.conversation.server;
 
+import com.clouway.conversation.time.Clock;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
  */
 public class Server {
 
-    private Calendar calendar;
+    private Clock clock;
 
-    public Server(Calendar calendar) {
-        this.calendar=calendar;
+    public Server(Clock clock) {
+        this.clock = clock;
     }
 
     public void run(int portNumber) {
@@ -25,13 +25,10 @@ public class Server {
             Socket clientSocket = serverSocket.accept();
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-            out.println("Hello! " + format.format(calendar.getTime()));
+            out.println("Hello! " + format.format(clock.getTime()));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void date(Date date) {
-        calendar.setTime(date);
-    }
 }

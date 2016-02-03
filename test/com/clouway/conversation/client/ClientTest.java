@@ -18,38 +18,40 @@ import java.net.UnknownHostException;
  */
 public class ClientTest {
     @Rule
-    public JUnitRuleMockery context= new JUnitRuleMockery();
+    public JUnitRuleMockery context = new JUnitRuleMockery();
 
-    @Mock StatusBoard statusBoard;
-    @Mock MessagePrinter messagePrinter;
+    @Mock
+    StatusBoard statusBoard;
+    @Mock
+    MessagePrinter messagePrinter;
 
     @Test
     public void successfullyReceiveMessage() throws IOException {
-        int port= 1415;
+        int port = 1415;
 
-            messageToClient(port);
-            Client client = new Client(statusBoard, messagePrinter);
-            context.checking(new Expectations(){{
-                exactly(4).of(statusBoard).printStatus(with(any(String.class)));
-                oneOf(messagePrinter).printMessage("Message!");
-            }});
-            client.run(InetAddress.getByName("localhost"), port);
+        messageToClient(port);
+        Client client = new Client(statusBoard, messagePrinter);
+        context.checking(new Expectations() {{
+            exactly(4).of(statusBoard).printStatus(with(any(String.class)));
+            oneOf(messagePrinter).printMessage("Message!");
+        }});
+        client.run(InetAddress.getByName("localhost"), port);
 
     }
 
     private void messageToClient(final int port) {
-        new Thread(){
-          @Override
-            public void run(){
-              try {
-                  ServerSocket serverSocket = new ServerSocket(port);
-                  Socket clientSocket = serverSocket.accept();
-                  PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                  out.println("Message!");
-              } catch (IOException e) {
-                  e.printStackTrace();
-              }
-          }
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    Socket clientSocket = serverSocket.accept();
+                    PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                    out.println("Message!");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }.start();
     }
 }
