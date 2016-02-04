@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.clouway.conversation.util.CalendarUtil.january;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -26,9 +26,6 @@ import static org.hamcrest.core.IsEqual.equalTo;
  */
 public class ServerTest {
     Server server = null;
-    final int port = 1414;
-    SimpleDateFormat format = null;
-    Date date = null;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {{
@@ -41,12 +38,13 @@ public class ServerTest {
     @Before
     public void setUp() {
         server = new Server(clock);
-        date = new Date(116, 0, 15);
-
     }
 
     @Test
     public void sendMessageToClient() throws IOException {
+        int port = 5050;
+        Date currentTime = january(2016, 23);
+
         new Thread() {
             @Override
             public void run() {
@@ -56,22 +54,27 @@ public class ServerTest {
 
         context.checking(new Expectations() {{
             oneOf(clock).getTime();
-            will(returnValue(date));
+            will(returnValue(currentTime));
         }});
-        String fromServer = readFromServer(port);
 
-        String expected = "Hello! 15/01/2016";
+        Socket socket = getSocket(port);
+        String fromServer = readFromServer(socket);
+        socket.close();
+
+        String expected = "Hello! 23/01/2016";
 
         assertThat(fromServer, is(equalTo(expected)));
 
     }
 
-    private String readFromServer(int port) throws IOException {
+    private Socket getSocket(int port) throws IOException {
         InetAddress host = InetAddress.getByName("localhost");
-        Socket socket = new Socket(host, port);
-        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String fromServer = in.readLine();
-        socket.close();
-        return fromServer;
+        return new Socket(host, port);
     }
+
+    private String readFromServer(Socket socket) throws IOException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        return in.readLine();
+    }
+
 }
