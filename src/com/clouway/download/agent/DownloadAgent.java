@@ -1,7 +1,6 @@
 package com.clouway.download.agent;
 
 import java.io.BufferedInputStream;
-
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
