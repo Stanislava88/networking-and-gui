@@ -5,17 +5,24 @@ import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 
+import static com.clouway.conversation.util.CalendarUtil.february;
 import static com.clouway.conversation.util.CalendarUtil.january;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -24,8 +31,12 @@ import static org.hamcrest.core.IsEqual.equalTo;
 /**
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
  */
+@RunWith(Parameterized.class)
 public class ServerTest {
     Server server = null;
+    private Date date=null;
+    private int port;
+    InetAddress host= null;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {{
@@ -35,45 +46,81 @@ public class ServerTest {
     @Mock
     Clock clock;
 
-    @Before
-    public void setUp() {
-        server = new Server(clock);
+    @Parameterized.Parameters(name = "{index}: {1}-->{0}")
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {1414,january(2016, 23)}, {2020, january(2016, 24)}, {3030, january(2013, 13)}, {5050, february(1994, 4)}
+        });
     }
 
+
+
+
+    public ServerTest(int port, Date date) {
+        this.port = port;
+        this.date = date;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        server = new Server();
+        server.setUp(clock, port);
+        server.startAsync();
+        host = InetAddress.getByName("localhost");
+    }
+
+    @After
+    public void tearDown(){
+        server.stopAsync();
+        server=null;
+        host=null;
+    }
+
+
+
     @Test
-    public void sendMessageToClient() throws IOException {
-        int port = 5050;
-        Date currentTime = january(2016, 23);
-
-        new Thread() {
-            @Override
-            public void run() {
-                server.run(port);
-            }
-        }.start();
-
+    public void sendMessageToClient() throws Exception {
         context.checking(new Expectations() {{
             oneOf(clock).getTime();
-            will(returnValue(currentTime));
+            will(returnValue(date));
         }});
 
-        Socket socket = getSocket(port);
+        Socket socket =new Socket(host, port);
         String fromServer = readFromServer(socket);
-        socket.close();
 
-        String expected = "Hello! 23/01/2016";
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        String expected = "Hello! " + format.format(date);
 
         assertThat(fromServer, is(equalTo(expected)));
 
     }
 
-    private Socket getSocket(int port) throws IOException {
-        InetAddress host = InetAddress.getByName("localhost");
-        return new Socket(host, port);
+    @Test
+    public void sendMessageToSecondClient() throws Exception {
+        context.checking(new Expectations() {{
+            oneOf(clock).getTime();
+            will(returnValue(date));
+        }});
+
+        Socket socket = new Socket(host, port);
+        String messageOne = readFromServer(socket);
+
+        Socket socketTwo =new Socket(host, port);
+        String fromServer = readFromServer(socketTwo);
+
+//        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+//        String expected = "Hello! " + format.format(date);
+//        String fromServer="1";
+//        String messageOne="10";
+
+        assertThat(fromServer, is(equalTo(messageOne)));
     }
 
-    private String readFromServer(Socket socket) throws IOException {
+
+
+    private synchronized String readFromServer(Socket socket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        socket.setSoTimeout(1000);
         return in.readLine();
     }
 
