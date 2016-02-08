@@ -47,10 +47,11 @@ public class ClientTest {
         }});
         try {
             socket = new Socket(host, port);
-            sendMessageToClient(socket, message);
             socket.setSoTimeout(1000);
-            client.run(socket);
-        } catch (SocketTimeoutException e) {
+
+            sendMessageToClient(clientSocket, message);
+
+            client.run(clientSocket);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,17 +60,16 @@ public class ClientTest {
     }
 
     private void sendMessageToClient(Socket clientSocket, String message) {
-        new Thread(){
-            @Override
-            public void run(){
-                try {
-                    PrintWriter out= new PrintWriter(clientSocket.getOutputStream(), true);
-                    out.write(message);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+
+        PrintWriter out= null;
+        try {
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            out.write(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private void connectToServer() {
@@ -78,7 +78,7 @@ public class ClientTest {
             public void run(){
                 try {
                     ServerSocket serverSocket= new ServerSocket(port);
-                    Socket clientSocket= serverSocket.accept();
+                    clientSocket= serverSocket.accept();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
