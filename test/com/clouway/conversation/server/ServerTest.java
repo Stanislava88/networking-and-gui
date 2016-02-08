@@ -37,20 +37,20 @@ import static org.hamcrest.core.IsEqual.equalTo;
 public class ServerTest {
     Server server = null;
     private Date date = null;
-    private int port;
+    private int port=5050;
+
     InetAddress host = null;
 
 
-    @Parameterized.Parameters(name = "{index}: {1}-->{0}")
+    @Parameterized.Parameters(name = "{index}:{0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {1414, january(2016, 23)}, {5050, january(2016, 24)}, {3090, january(2013, 13)}, {1478, february(1994, 4)}
+                {january(2016, 23)}, {january(2016, 24)}, { january(2013, 13)}, { february(1994, 4)}
         });
     }
 
 
-    public ServerTest(int port, Date date) {
-        this.port = port;
+    public ServerTest(Date date) {
         this.date = date;
     }
 
@@ -104,18 +104,18 @@ public class ServerTest {
     public void sendMessageToSecondClient() throws Exception {
 
         context.checking(new Expectations() {{
-            atLeast(1).of(clock).getTime();
+            exactly(2).of(clock).getTime();
             will(returnValue(date));
         }});
 
-        Socket socket = new Socket(host, port);
-        String messageOne = readFromServer(socket);
+        Socket clientOne = new Socket(host, port);
+        String messageOne = readFromServer(clientOne);
 
 
-        Socket socketTwo = new Socket(host, port);
-        String fromServer = readFromServer(socketTwo);
+        Socket clientTwo = new Socket(host, port);
+        String messageTwo = readFromServer(clientTwo);
 
-        assertThat(fromServer, is(equalTo(messageOne)));
+        assertThat(messageTwo, is(equalTo(messageOne)));
     }
 
 
