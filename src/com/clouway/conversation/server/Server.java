@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.text.SimpleDateFormat;
 
 /**
@@ -36,7 +37,8 @@ public class Server extends AbstractExecutionThreadService {
                 clientSocket.close();
             }
 
-        } catch (IOException e) {
+        } catch(SocketException ex){
+        }catch (IOException e) {
             e.printStackTrace();
         }
 
