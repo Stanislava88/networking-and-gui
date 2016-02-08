@@ -35,18 +35,11 @@ import static org.hamcrest.core.IsEqual.equalTo;
  */
 @RunWith(Parameterized.class)
 public class ServerTest {
-    Server server=null;
+    Server server = null;
     private Date date = null;
     private int port;
     InetAddress host = null;
 
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery() {{
-        setThreadingPolicy(new Synchroniser());
-    }};
-
-    @Mock
-    Clock clock;
 
     @Parameterized.Parameters(name = "{index}: {1}-->{0}")
     public static Collection<Object[]> data() {
@@ -61,27 +54,36 @@ public class ServerTest {
         this.date = date;
     }
 
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery() {{
+        setThreadingPolicy(new Synchroniser());
+    }};
+
+    @Mock
+    Clock clock;
+
     @Before
     public void setUp() throws Exception {
+        server = new Server(clock, port);
+
+        server.startAsync();
+        server.awaitRunning();
         host = InetAddress.getByName("localhost");
     }
 
     @After
     public void tearDown(){
         server.stopAsync();
-//        try {
-//            server.awaitTerminated(1, TimeUnit.SECONDS);
-//        } catch (TimeoutException e) {
-//        }
-        server=null;
+        try {
+            server.awaitTerminated(1, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
     }
+
 
     @Test
     public void sendMessageToClient() throws Exception {
-        server = new Server(clock, port);
-
-        server.startAsync();
-        server.awaitRunning();
 
         context.checking(new Expectations() {{
             oneOf(clock).getTime();
@@ -94,20 +96,12 @@ public class ServerTest {
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         String expected = "Hello! " + format.format(date);
 
-        server.stopAsync();
-
-
         assertThat(fromServer, is(equalTo(expected)));
 
     }
 
     @Test
     public void sendMessageToSecondClient() throws Exception {
-        port += 2;
-        server = new Server(clock, port);
-
-        server.startAsync();
-        server.awaitRunning();
 
         context.checking(new Expectations() {{
             atLeast(1).of(clock).getTime();
@@ -120,8 +114,6 @@ public class ServerTest {
 
         Socket socketTwo = new Socket(host, port);
         String fromServer = readFromServer(socketTwo);
-
-        server.stopAsync();
 
         assertThat(fromServer, is(equalTo(messageOne)));
     }

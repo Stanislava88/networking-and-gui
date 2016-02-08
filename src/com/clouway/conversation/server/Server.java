@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 public class Server extends AbstractExecutionThreadService {
     private Clock clock;
     private int portNumber;
+    private ServerSocket serverSocket=null;
 
     public Server(Clock clock, int port) {
         this.clock = clock;
@@ -24,18 +25,34 @@ public class Server extends AbstractExecutionThreadService {
 
     @Override
     protected void run() {
-        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
-            while (isRunning()) {
+//        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+        try{
+            while (serverSocket.isBound()) {
                 Socket clientSocket = serverSocket.accept();
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                 SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                out.println("Hello! "+ format.format(clock.getTime()));
+                out.println("Hello! " + format.format(clock.getTime()));
                 out.close();
                 clientSocket.close();
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    protected void startUp() throws Exception {
+        serverSocket= new ServerSocket(portNumber);
+    }
+
+    @Override
+    protected void triggerShutdown() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
