@@ -16,7 +16,7 @@ import java.text.SimpleDateFormat;
 public class Server extends AbstractExecutionThreadService {
     private Clock clock;
     private int portNumber;
-    private ServerSocket serverSocket=null;
+    private ServerSocket serverSocket = null;
 
     public Server(Clock clock, int port) {
         this.clock = clock;
@@ -26,8 +26,7 @@ public class Server extends AbstractExecutionThreadService {
 
     @Override
     protected void run() {
-//        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
-        try{
+        try {
             while (serverSocket.isBound()) {
                 Socket clientSocket = serverSocket.accept();
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -37,8 +36,8 @@ public class Server extends AbstractExecutionThreadService {
                 clientSocket.close();
             }
 
-        } catch(SocketException ex){
-        }catch (IOException e) {
+        } catch (SocketException ex) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -46,7 +45,7 @@ public class Server extends AbstractExecutionThreadService {
 
     @Override
     protected void startUp() throws Exception {
-        serverSocket= new ServerSocket(portNumber);
+        serverSocket = new ServerSocket(portNumber);
     }
 
     @Override

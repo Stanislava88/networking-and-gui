@@ -72,7 +72,7 @@ public class ServerTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         server.stopAsync();
         try {
             server.awaitTerminated(1, TimeUnit.SECONDS);
