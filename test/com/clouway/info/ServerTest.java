@@ -19,23 +19,23 @@ import static org.hamcrest.core.IsEqual.equalTo;
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
  */
 public class ServerTest {
-    Server server=null;
-    InetAddress host=null;
+    Server server = null;
+    InetAddress host = null;
     private int port;
 
 
     @Before
     public void setUp() throws UnknownHostException {
-        port=5050;
-        server= new Server(port);
+        port = 5050;
+        server = new Server(port);
         server.startAsync();
         server.awaitRunning();
 
-        host= InetAddress.getByName("localhost");
+        host = InetAddress.getByName("localhost");
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         server.stopAsync();
         server.awaitTerminated();
     }
@@ -44,8 +44,8 @@ public class ServerTest {
     public void serverSendsNumberToClient() throws IOException {
 
         Socket socket = new Socket(host, port);
-        String serverMessage= readFromServer(socket);
-        String expectedMessage="You are client number: 1";
+        String serverMessage = readFromServer(socket);
+        String expectedMessage = "You are client number: 1";
 
         assertThat(serverMessage, is(equalTo(expectedMessage)));
     }
@@ -53,19 +53,19 @@ public class ServerTest {
     @Test
     public void serverSendsTheFirstClientNumberOfTheSecond() throws IOException {
         Socket firstClient = new Socket(host, port);
-        String firstMesssage= readFromServer(firstClient);
+        String firstMesssage = readFromServer(firstClient);
 
         Socket secondClient = new Socket(host, port);
 
-        String secondMessage= readFromServer(firstClient);
-        String expectedSecondMessage= "Client number 2 just joined";
+        String secondMessage = readFromServer(firstClient);
+        String expectedSecondMessage = "Client number 2 just joined";
 
 
         assertThat(secondMessage, is(equalTo(expectedSecondMessage)));
     }
 
     private String readFromServer(Socket socket) throws IOException {
-        BufferedReader in= new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         socket.setSoTimeout(1000);
         return in.readLine();
     }

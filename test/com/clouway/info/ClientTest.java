@@ -24,7 +24,6 @@ public class ClientTest {
     FakeServer fakeServer;
 
 
-
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
@@ -36,14 +35,14 @@ public class ClientTest {
         port = 5050;
         host = InetAddress.getByName("localhost");
         client = new Client(board);
-        fakeServer= new FakeServer();
+        fakeServer = new FakeServer();
         fakeServer.start();
     }
 
-@After
-public void tearDown(){
-    fakeServer.interrupt();
-}
+    @After
+    public void tearDown() {
+        fakeServer.interrupt();
+    }
 
 
     @Test
@@ -55,15 +54,14 @@ public void tearDown(){
         fakeServer.messageClient(message);
 
 
-
         context.checking(new Expectations() {{
             oneOf(board).printStatus(message);
         }});
 
-            socket.setSoTimeout(1000);
+        socket.setSoTimeout(1000);
 
 
-            client.run(socket);
+        client.run(socket);
 
     }
 
