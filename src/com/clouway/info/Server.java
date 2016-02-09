@@ -2,11 +2,14 @@ package com.clouway.info;
 
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +18,13 @@ import java.util.List;
  */
 public class Server extends AbstractExecutionThreadService {
     private int port;
+    private ConsoleMessage console;
     ServerSocket serverSocket = null;
     private List<Socket> clientList = new ArrayList<>();
 
-    public Server(int port) {
+    public Server(int port, ConsoleMessage console) {
         this.port = port;
+        this.console = console;
     }
 
 
@@ -30,8 +35,16 @@ public class Server extends AbstractExecutionThreadService {
                 Socket clientSocket = serverSocket.accept();
 
                 int clientNumber = clientList.size() + 1;
-
+                console.printMessage("Client number: " + clientNumber + ", has just connected");
                 sendMessageToClients(clientList, clientNumber);
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                clientSocket.setSoTimeout(100);
+                try {
+                    console.printMessage(in.readLine());
+                } catch (SocketTimeoutException ex) {
+                }
+
                 sendMessageToClient(clientSocket, "You are client number: " + clientNumber);
                 clientList.add(clientSocket);
             }
