@@ -3,14 +3,15 @@ package com.clouway.info;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
@@ -19,7 +20,7 @@ public class ClientTest {
     int port;
     Client client;
     InetAddress host;
-    Socket clientSocket=null;
+
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -32,58 +33,77 @@ public class ClientTest {
         port = 5050;
         host = InetAddress.getByName("localhost");
         client = new Client(board);
-        connectToServer();
     }
+
+
+//    @Test
+//    public void receiveMessage() {
+//        String message = "You are number: 1";
+//
+//        Socket socket = null;
+//        sendMessageToClient(message);
+//
+//
+//
+//        context.checking(new Expectations() {{
+//            oneOf(board).printStatus(message);
+//        }});
+//        try {
+//            socket = new Socket(host, port);
+//            socket.setSoTimeout(1000);
+//
+//
+//            client.run(socket);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
     @Test
-    public void receiveMessage() {
-        String message = "You are number: 1";
+    public void receiveSecondMessage() throws IOException {
+        String messageOne= "one";
+        String messageTwo= "two";
 
-        Socket socket = null;
+        FakeServer fakeServer= new FakeServer();
+
+        fakeServer.run();
+        Socket client= new Socket(host, port);
 
 
-        context.checking(new Expectations() {{
-            oneOf(board).printStatus(message);
+        context.checking(new Expectations(){{
+        oneOf(board).printStatus(messageOne);
+        oneOf(board).printStatus(messageTwo);
         }});
-        try {
-            socket = new Socket(host, port);
-            socket.setSoTimeout(1000);
 
-            sendMessageToClient(clientSocket, message);
+            fakeServer.messageClient(messageOne);
+            fakeServer.messageClient(messageTwo);
 
-            client.run(clientSocket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            client.setSoTimeout(1000);
 
+            this.client.run(client);
 
     }
 
-    private void sendMessageToClient(Socket clientSocket, String message) {
+private class FakeServer extends Thread{
 
-        PrintWriter out= null;
-        try {
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
-            out.write(message);
+    private PrintWriter out;
+
+    @Override
+    public void run(){
+        try (ServerSocket serverSocket= new ServerSocket(port, 1, host)){
+            Socket clientSocket= serverSocket.accept();
+            out=new PrintWriter(clientSocket.getOutputStream(), true);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
-    private void connectToServer() {
-        new Thread(){
-            @Override
-            public void run(){
-                try {
-                    ServerSocket serverSocket= new ServerSocket(port);
-                    clientSocket= serverSocket.accept();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
+    public void messageClient(String message){
+        out.println(message);
+    }
+    
     }
 
 }
