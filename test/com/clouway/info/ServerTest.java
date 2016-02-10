@@ -83,7 +83,7 @@ public class ServerTest {
         String secondMessage = readFromServer(firstClient);
         String expectedSecondMessage = "Client number 2 just joined";
 
-
+        assertThat(firstMesssage, is(equalTo("You are client number: 1")));
         assertThat(secondMessage, is(equalTo(expectedSecondMessage)));
     }
 

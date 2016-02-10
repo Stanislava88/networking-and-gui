@@ -67,7 +67,7 @@ public class ClientTest {
         context.checking(new Expectations() {{
             oneOf(board).printStatus(message);
             oneOf(console).readMessage();
-            will(returnValue("asd"));
+            will(returnValue("test"));
         }});
 
         socket.setSoTimeout(1000);
