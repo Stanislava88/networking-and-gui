@@ -90,11 +90,11 @@ public class ServerTest {
             will(returnValue(date));
         }});
 
-        Socket socket = new Socket(host, port);
-        String fromServer = readFromServer(socket);
+        Socket client = new Socket(host, port);
+        String fromServer = readFromServer(client);
 
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        String expected = "Hello! " + format.format(date);
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        String expected = "Hello! " + formatter.format(date);
 
         assertThat(fromServer, is(equalTo(expected)));
 
@@ -104,18 +104,18 @@ public class ServerTest {
     public void sendMessageToSecondClient() throws Exception {
 
         context.checking(new Expectations() {{
-            atLeast(1).of(clock).getTime();
+            exactly(2).of(clock).getTime();
             will(returnValue(date));
         }});
 
-        Socket socket = new Socket(host, port);
-        String messageOne = readFromServer(socket);
+        Socket client = new Socket(host, port);
+        String messageOne = readFromServer(client);
 
 
         Socket socketTwo = new Socket(host, port);
-        String fromServer = readFromServer(socketTwo);
+        String messageFromServer = readFromServer(socketTwo);
 
-        assertThat(fromServer, is(equalTo(messageOne)));
+        assertThat(messageFromServer, is(equalTo(messageOne)));
     }
 
 

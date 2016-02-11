@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 /**
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
@@ -29,7 +28,7 @@ public class ClientTest {
     public void successfullyReceiveMessage() throws IOException {
         int port = 1415;
 
-        messageToClient(port);
+        sendMessageToClient(port);
         Client client = new Client(statusBoard, messagePrinter);
         context.checking(new Expectations() {{
             exactly(4).of(statusBoard).printStatus(with(any(String.class)));
@@ -39,7 +38,7 @@ public class ClientTest {
 
     }
 
-    private void messageToClient(final int port) {
+    private void sendMessageToClient(final int port) {
         new Thread() {
             @Override
             public void run() {
