@@ -1,5 +1,6 @@
 package com.clouway.info;
 
+import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -15,7 +16,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -25,10 +25,10 @@ import static org.hamcrest.core.IsEqual.equalTo;
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
  */
 public class ClientTest {
-    int port;
-    Client client;
-    InetAddress host;
-    FakeServer fakeServer;
+    private int port;
+    private Client client;
+    private InetAddress host;
+    private FakeServer fakeServer;
 
 
     @Rule
@@ -38,31 +38,32 @@ public class ClientTest {
     StatusBoard board;
 
     @Mock
-    ConsoleMessage console;//TODO finish the task (the client sends messages to the server.)
+    ConsoleMessage console;
 
     @Before
     public void setUp() throws IOException {
-        port = 5050;
+        port = 2314;
         host = InetAddress.getByName("localhost");
         client = new Client(board, console);
         fakeServer = new FakeServer();
-        fakeServer.start();
+        fakeServer.startAsync();
+        fakeServer.awaitRunning();
     }
 
     @After
-    public void tearDown() {
-        fakeServer.interrupt();
+    public void tearDown() throws IOException {
+        fakeServer.stopAsync();
+        fakeServer.awaitTerminated();
     }
 
 
     @Test
-    public void receiveMessage() throws IOException {
+    public void receivesMessageFromServer() throws IOException {
         String message = "You are number: 1";
 
         Socket socket = new Socket(host, port);
 
-        fakeServer.messageClient(message);
-
+        fakeServer.messageToClient(message);
 
         context.checking(new Expectations() {{
             oneOf(board).printStatus(message);
@@ -70,22 +71,19 @@ public class ClientTest {
             will(returnValue("test"));
         }});
 
-        socket.setSoTimeout(1000);
-
-
+        socket.setSoTimeout(100);
         client.run(socket);
-
     }
 
     @Test
-    public void receiveSecondMessage() throws IOException {
+    public void receivesSecondMessageFromServer() throws IOException {
         String messageOne = "one";
         String messageTwo = "two";
 
         Socket client = new Socket(host, port);
 
-        fakeServer.messageClient(messageOne);
-        fakeServer.messageClient(messageTwo);
+        fakeServer.messageToClient(messageOne);
+        fakeServer.messageToClient(messageTwo);
 
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
@@ -94,11 +92,9 @@ public class ClientTest {
             oneOf(board).printStatus(messageTwo);
         }});
 
-
-        client.setSoTimeout(1000);
+        client.setSoTimeout(100);
 
         this.client.run(client);
-
     }
 
     @Test
@@ -107,7 +103,7 @@ public class ClientTest {
 
         Socket socket = new Socket(host, port);
 
-        fakeServer.messageClient(message);
+        fakeServer.messageToClient(message);
 
         String messageToServer="a message";
 
@@ -118,14 +114,14 @@ public class ClientTest {
 
         }});
 
-        socket.setSoTimeout(1000);
+        socket.setSoTimeout(100);
 
         client.run(socket);
         String readFromServer= fakeServer.receiveFromClient();
         assertThat(messageToServer, is(equalTo(readFromServer)));
     }
 
-    private class FakeServer extends Thread {
+    private class FakeServer extends AbstractExecutionThreadService {
 
         private PrintWriter out;
         private BufferedReader in;
@@ -133,7 +129,7 @@ public class ClientTest {
 
         @Override
         public synchronized void run() {
-            try (ServerSocket serverSocket = new ServerSocket(port)) {
+            try (ServerSocket serverSocket = new ServerSocket(port, 1, host)) {
                 clientSocket = serverSocket.accept();
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 in= new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -142,14 +138,14 @@ public class ClientTest {
             }
         }
 
-        public synchronized void messageClient(String message) {
+        public synchronized void messageToClient(String message) {
             out.println(message);
         }
 
         public synchronized String receiveFromClient() throws IOException {
-            clientSocket.setSoTimeout(2000);
             return in.readLine();
         }
+
     }
 
 }

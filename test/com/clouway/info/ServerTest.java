@@ -40,11 +40,10 @@ public class ServerTest {
 
     @Before
     public void setUp() throws UnknownHostException {
-        port = 5050;
+        port = 5060;
         server = new Server(port, console);
         server.startAsync();
         server.awaitRunning();
-
         host = InetAddress.getByName("localhost");
     }
 
@@ -55,7 +54,7 @@ public class ServerTest {
     }
 
     @Test
-    public void serverSendsNumberToClient() throws IOException {
+    public void sendsMessageWithTheNumberOfTheClient() throws IOException {
 
         context.checking(new Expectations() {{
             oneOf(console).printMessage("Client number: 1, has just connected");
@@ -70,7 +69,7 @@ public class ServerTest {
 
 
     @Test
-    public void serverSendsTheFirstClientNumberOfTheSecond() throws IOException {
+    public void sendsMessageToNotifyFirstClientThatSecondClientHasBeenConnected() throws IOException {
         context.checking(new Expectations() {{
             oneOf(console).printMessage("Client number: 1, has just connected");
             oneOf(console).printMessage("Client number: 2, has just connected");
@@ -96,12 +95,12 @@ public class ServerTest {
         }});
 
         Socket socket = new Socket(host, port);
-        writeToServer(socket, messageFromClient);
+
         String serverMessage = readFromServer(socket);
+        writeToServer(socket, messageFromClient);
         String expectedMessage = "You are client number: 1";
 
         assertThat(serverMessage, is(equalTo(expectedMessage)));
-
     }
 
     private void writeToServer(Socket socket, String messageForServer) throws IOException {
@@ -111,7 +110,8 @@ public class ServerTest {
 
     private String readFromServer(Socket socket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        socket.setSoTimeout(1000);
+
         return in.readLine();
+
     }
 }

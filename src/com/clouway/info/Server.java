@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 public class Server extends AbstractExecutionThreadService {
     private int port;
     private ConsoleMessage console;
-    ServerSocket serverSocket = null;
+    private ServerSocket serverSocket = null;
     private List<Socket> clientList = new ArrayList<>();
 
     public Server(int port, ConsoleMessage console) {
@@ -30,26 +29,38 @@ public class Server extends AbstractExecutionThreadService {
 
     @Override
     protected void run() throws Exception {
-        try {
-            while (serverSocket.isBound()) {
+        while (isRunning()) {
+            try {
+                serverSocket.setSoTimeout(100);
                 Socket clientSocket = serverSocket.accept();
 
                 int clientNumber = clientList.size() + 1;
                 console.printMessage("Client number: " + clientNumber + ", has just connected");
-                sendMessageToClients(clientList, clientNumber);
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                clientSocket.setSoTimeout(100);
-                try {
-                    console.printMessage(in.readLine());
-                } catch (SocketTimeoutException ex) {
-                }
-
                 sendMessageToClient(clientSocket, "You are client number: " + clientNumber);
+                sendMessageToClients(clientList, clientNumber);
                 clientList.add(clientSocket);
+
+                readFromAllClients();
+            } catch (SocketTimeoutException ex) {
+                readFromAllClients();
             }
-        } catch (SocketException e) {
+
         }
+
+    }
+
+    private synchronized void readFromAllClients() {
+        for (Socket client : clientList) {
+            try {
+                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                client.setSoTimeout(100);
+                console.printMessage(in.readLine());
+            } catch (SocketTimeoutException ignored) {
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private void sendMessageToClients(List<Socket> clientList, int clientNumber) {

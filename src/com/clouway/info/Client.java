@@ -30,6 +30,7 @@ public class Client {
                 board.printStatus(fromServer);
             }
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
