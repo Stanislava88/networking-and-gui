@@ -2,13 +2,9 @@ package com.clouway.info;
 
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +15,7 @@ public class Server extends AbstractExecutionThreadService {
     private int port;
     private ConsoleMessage console;
     private ServerSocket serverSocket = null;
-    private List<Socket> clientList = new ArrayList<>();
+    private List<ClientConnection> clientList = new ArrayList<>();
 
     public Server(int port, ConsoleMessage console) {
         this.port = port;
@@ -31,53 +27,40 @@ public class Server extends AbstractExecutionThreadService {
     protected void run() throws Exception {
         while (isRunning()) {
             try {
-                serverSocket.setSoTimeout(100);
                 Socket clientSocket = serverSocket.accept();
-
+                ClientConnection clientConnection = new ClientConnection(clientSocket, console);
                 int clientNumber = clientList.size() + 1;
                 console.printMessage("Client number: " + clientNumber + ", has just connected");
-                sendMessageToClient(clientSocket, "You are client number: " + clientNumber);
+
+                new Thread() {
+                    @Override
+                    public void run() {
+                        clientConnection.readFromClient();
+                    }
+                }.start();
+
+
+
+                clientConnection.sendMessageToClient("You are client number: " + clientNumber);
                 sendMessageToClients(clientList, clientNumber);
-                clientList.add(clientSocket);
-
-                readFromAllClients();
-            } catch (SocketTimeoutException ex) {
-                readFromAllClients();
+                clientList.add(clientConnection);
+            }catch (IOException ignored){
             }
 
         }
 
     }
 
-    private synchronized void readFromAllClients() {
-        for (Socket client : clientList) {
-            try {
-                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                client.setSoTimeout(100);
-                console.printMessage(in.readLine());
-            } catch (SocketTimeoutException ignored) {
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
-    }
 
-    private void sendMessageToClients(List<Socket> clientList, int clientNumber) {
-        for (Socket client : clientList) {
+    private void sendMessageToClients(List<ClientConnection> clientList, int clientNumber) {
+        for (ClientConnection client : clientList) {
             String message = "Client number " + clientNumber + " just joined";
-            sendMessageToClient(client, message);
+            client.sendMessageToClient(message);
         }
     }
 
-    private void sendMessageToClient(Socket clientSocket, String message) {
-        try {
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            out.println(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     @Override
     protected void startUp() throws Exception {

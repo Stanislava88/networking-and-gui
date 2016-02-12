@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
@@ -19,7 +20,7 @@ public class Client {
         this.console = console;
     }
 
-    public void run(Socket socket) {
+    public void run(Socket socket) throws NoSocketException {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -28,6 +29,9 @@ public class Client {
             out.println(toServer);
             while ((fromServer = in.readLine()) != null) {
                 board.printStatus(fromServer);
+            }
+            if(in.readLine()==null){
+                throw new NoSocketException("socket closed");
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -57,13 +57,13 @@ public class ClientTest {
     }
 
 
-    @Test
-    public void receivesMessageFromServer() throws IOException {
+    @Test(expected = NoSocketException.class)
+    public void receivesMessageFromServer() throws IOException, NoSocketException {
         String message = "You are number: 1";
 
         Socket socket = new Socket(host, port);
 
-        fakeServer.messageToClient(message);
+        fakeServer.messageToClient(message, true);
 
         context.checking(new Expectations() {{
             oneOf(board).printStatus(message);
@@ -71,19 +71,20 @@ public class ClientTest {
             will(returnValue("test"));
         }});
 
-        socket.setSoTimeout(100);
+
         client.run(socket);
+
     }
 
-    @Test
-    public void receivesSecondMessageFromServer() throws IOException {
+    @Test(expected = NoSocketException.class)
+    public void receivesSecondMessageFromServer() throws IOException, NoSocketException {
         String messageOne = "one";
         String messageTwo = "two";
 
-        Socket client = new Socket(host, port);
+        Socket clientSocket = new Socket(host, port);
 
-        fakeServer.messageToClient(messageOne);
-        fakeServer.messageToClient(messageTwo);
+        fakeServer.messageToClient(messageOne, false);
+        fakeServer.messageToClient(messageTwo, true);
 
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
@@ -92,20 +93,20 @@ public class ClientTest {
             oneOf(board).printStatus(messageTwo);
         }});
 
-        client.setSoTimeout(100);
 
-        this.client.run(client);
+        client.run(clientSocket);
+
     }
 
     @Test
-    public void sendMessageToServer() throws IOException {
+    public void sendMessageToServer() throws IOException, NoSocketException {
         String message = "You are number: 1";
 
         Socket socket = new Socket(host, port);
 
-        fakeServer.messageToClient(message);
+        fakeServer.messageToClient(message, false);
 
-        String messageToServer="a message";
+        String messageToServer = "a message";
 
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
@@ -117,9 +118,11 @@ public class ClientTest {
         socket.setSoTimeout(100);
 
         client.run(socket);
-        String readFromServer= fakeServer.receiveFromClient();
+
+        String readFromServer = fakeServer.receiveFromClient();
         assertThat(messageToServer, is(equalTo(readFromServer)));
     }
+
 
     private class FakeServer extends AbstractExecutionThreadService {
 
@@ -132,18 +135,26 @@ public class ClientTest {
             try (ServerSocket serverSocket = new ServerSocket(port, 1, host)) {
                 clientSocket = serverSocket.accept();
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
-                in= new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        public synchronized void messageToClient(String message) {
+        public synchronized void messageToClient(String message, boolean closeSocket) {
             out.println(message);
+            if (closeSocket) {
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         public synchronized String receiveFromClient() throws IOException {
             return in.readLine();
+
         }
 
     }
