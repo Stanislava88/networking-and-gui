@@ -123,7 +123,6 @@ public class ServerTest {
 
     private String readFromServer(Socket socket) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        socket.setSoTimeout(1000);
         return in.readLine();
     }
 
