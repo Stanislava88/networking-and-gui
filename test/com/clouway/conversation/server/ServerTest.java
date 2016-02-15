@@ -93,8 +93,8 @@ public class ServerTest {
         Socket socket = new Socket(host, port);
         String fromServer = readFromServer(socket);
 
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        String expected = "Hello! " + format.format(date);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String expected = "Hello! " + dateFormat.format(date);
 
         assertThat(fromServer, is(equalTo(expected)));
 

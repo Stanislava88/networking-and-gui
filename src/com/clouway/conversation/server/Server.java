@@ -30,8 +30,8 @@ public class Server extends AbstractExecutionThreadService {
             while (serverSocket.isBound()) {
                 Socket clientSocket = serverSocket.accept();
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-                out.println("Hello! " + format.format(clock.getTime()));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                out.println("Hello! " + dateFormat.format(clock.getTime()));
                 out.close();
                 clientSocket.close();
             }
