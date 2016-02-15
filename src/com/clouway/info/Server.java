@@ -40,17 +40,15 @@ public class Server extends AbstractExecutionThreadService {
                 }.start();
 
 
-
                 clientConnection.sendMessageToClient("You are client number: " + clientNumber);
                 sendMessageToClients(clientList, clientNumber);
                 clientList.add(clientConnection);
-            }catch (IOException ignored){
+            } catch (IOException ignored) {
             }
 
         }
 
     }
-
 
 
     private void sendMessageToClients(List<ClientConnection> clientList, int clientNumber) {
@@ -59,7 +57,6 @@ public class Server extends AbstractExecutionThreadService {
             client.sendMessageToClient(message);
         }
     }
-
 
 
     @Override

@@ -130,12 +130,14 @@ public class ClientTest {
         private BufferedReader in;
         Socket clientSocket;
 
+
         @Override
         public synchronized void run() {
             try (ServerSocket serverSocket = new ServerSocket(port, 1, host)) {
-                clientSocket = serverSocket.accept();
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    clientSocket = serverSocket.accept();
+                    out = new PrintWriter(clientSocket.getOutputStream(), true);
+                    in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

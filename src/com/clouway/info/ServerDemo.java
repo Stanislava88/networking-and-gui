@@ -7,7 +7,7 @@ import java.util.Scanner;
  */
 public class ServerDemo {
     public static void main(String[] args) {
-        ConsoleMessage console= new ConsoleMessage() {
+        ConsoleMessage console = new ConsoleMessage() {
             @Override
             public void printMessage(String message) {
                 System.out.println(message);
@@ -15,10 +15,10 @@ public class ServerDemo {
 
             @Override
             public String readMessage() {
-                return  null;
+                return null;
             }
         };
-        Server server= new Server(5050, console);
+        Server server = new Server(5050, console);
         server.startAsync();
         server.awaitRunning();
     }

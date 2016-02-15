@@ -18,16 +18,16 @@ public class ClientConnection {
         this.console = console;
     }
 
-    public synchronized void readFromClient(){
+    public synchronized void readFromClient() {
         try {
-            BufferedReader in= new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             console.printMessage(in.readLine());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void sendMessageToClient(String message){
+    public void sendMessageToClient(String message) {
         try {
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             out.println(message);

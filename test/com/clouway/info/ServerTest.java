@@ -1,8 +1,10 @@
 package com.clouway.info;
 
 import org.jmock.Expectations;
+import org.jmock.States;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.DeterministicExecutor;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.Before;
@@ -28,10 +30,11 @@ public class ServerTest {
     Server server = null;
     InetAddress host = null;
     private int port;
+    Synchroniser synchroniser = new Synchroniser();
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {{
-        setThreadingPolicy(new Synchroniser());
+        setThreadingPolicy(synchroniser);
     }};
 
     @Mock
@@ -87,19 +90,25 @@ public class ServerTest {
     }
 
     @Test
-    public void serverReceiveMessageFromClient() throws IOException {
+    public void serverReceiveMessageFromClient() throws IOException, InterruptedException {
         String messageFromClient = "i";
+        final States working = context.states("working");
+
         context.checking(new Expectations() {{
             oneOf(console).printMessage("Client number: 1, has just connected");
+            when(working.isNot("finished"));
             oneOf(console).printMessage(messageFromClient);
+            then(working.is("finished"));
+
         }});
 
-        Socket socket = new Socket(host, port);
+        Socket client = new Socket(host, port);
+        String serverMessage = readFromServer(client);
 
-        String serverMessage = readFromServer(socket);
-        writeToServer(socket, messageFromClient);
+        writeToServer(client, messageFromClient);
         String expectedMessage = "You are client number: 1";
 
+        synchroniser.waitUntil(working.is("finished"));
         assertThat(serverMessage, is(equalTo(expectedMessage)));
     }
 

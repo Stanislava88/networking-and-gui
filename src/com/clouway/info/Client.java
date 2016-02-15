@@ -30,7 +30,7 @@ public class Client {
             while ((fromServer = in.readLine()) != null) {
                 board.printStatus(fromServer);
             }
-            if(in.readLine()==null){
+            if (in.readLine() == null) {
                 throw new NoSocketException("socket closed");
             }
         } catch (IOException e) {

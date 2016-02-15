@@ -23,13 +23,13 @@ public class ClientDemo {
 
             @Override
             public String readMessage() {
-                Scanner scanner= new Scanner(System.in);
+                Scanner scanner = new Scanner(System.in);
                 return scanner.nextLine();
             }
         };
         try {
-            Socket socket= new Socket("localhost", 5050);
-            Client client= new Client(board, console);
+            Socket socket = new Socket("localhost", 5050);
+            Client client = new Client(board, console);
             client.run(socket);
         } catch (IOException e) {
             e.printStackTrace();
