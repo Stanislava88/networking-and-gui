@@ -90,11 +90,13 @@ public class ServerTest {
             will(returnValue(date));
         }});
 
-        Socket socket = new Socket(host, port);
-        String fromServer = readFromServer(socket);
+        Socket client = new Socket(host, port);
+        String fromServer = readFromServer(client);
+
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         String expected = "Hello! " + dateFormat.format(date);
+
 
         assertThat(fromServer, is(equalTo(expected)));
 
@@ -108,14 +110,14 @@ public class ServerTest {
             will(returnValue(date));
         }});
 
-        Socket clientOne = new Socket(host, port);
-        String messageOne = readFromServer(clientOne);
+        Socket client = new Socket(host, port);
+        String messageOne = readFromServer(client);
 
 
-        Socket clientTwo = new Socket(host, port);
-        String messageTwo = readFromServer(clientTwo);
+        Socket socketTwo = new Socket(host, port);
+        String messageFromServer = readFromServer(socketTwo);
 
-        assertThat(messageTwo, is(equalTo(messageOne)));
+        assertThat(messageFromServer, is(equalTo(messageOne)));
     }
 
 
