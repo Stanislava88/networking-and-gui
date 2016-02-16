@@ -72,10 +72,14 @@ public class ServerTest {
 
 
     @Test
-    public void sendsMessageToNotifyFirstClientThatSecondClientHasBeenConnected() throws IOException {
+    public void sendsMessageToNotifyFirstClientThatSecondClientHasBeenConnected() throws IOException, InterruptedException {
+        final States working = context.states("working");
+        //noinspection Duplicates
         context.checking(new Expectations() {{
             oneOf(console).printMessage("Client number: 1, has just connected");
+            when(working.isNot("finished"));
             oneOf(console).printMessage("Client number: 2, has just connected");
+            then(working.is("finished"));
         }});
         Socket firstClient = new Socket(host, port);
         String firstMesssage = readFromServer(firstClient);
@@ -85,6 +89,7 @@ public class ServerTest {
         String secondMessage = readFromServer(firstClient);
         String expectedSecondMessage = "Client number 2 just joined";
 
+        synchroniser.waitUntil(working.is("finished"));
         assertThat(firstMesssage, is(equalTo("You are client number: 1")));
         assertThat(secondMessage, is(equalTo(expectedSecondMessage)));
     }
@@ -94,6 +99,7 @@ public class ServerTest {
         String messageFromClient = "i";
         final States working = context.states("working");
 
+//        noinspection Duplicates
         context.checking(new Expectations() {{
             oneOf(console).printMessage("Client number: 1, has just connected");
             when(working.isNot("finished"));
