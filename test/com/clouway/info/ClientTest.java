@@ -1,21 +1,17 @@
 package com.clouway.info;
 
-import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -27,12 +23,13 @@ import static org.hamcrest.core.IsEqual.equalTo;
 public class ClientTest {
     private int port;
     private Client client;
-    private InetAddress host;
     private FakeServer fakeServer;
-
+    Synchroniser synchroniser = new Synchroniser();
 
     @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery();
+    public JUnitRuleMockery context = new JUnitRuleMockery() {{
+        setThreadingPolicy(synchroniser);
+    }};
 
     @Mock
     StatusBoard board;
@@ -41,28 +38,25 @@ public class ClientTest {
     ConsoleMessage console;
 
     @Before
-    public void setUp() throws IOException {
-        port = 2314;
-        host = InetAddress.getByName("localhost");
+    public void setUp() throws UnknownHostException {
+        port = 6023;
         client = new Client(board, console);
-        fakeServer = new FakeServer();
-        fakeServer.startAsync();
-        fakeServer.awaitRunning();
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() {
         fakeServer.stopAsync();
         fakeServer.awaitTerminated();
     }
 
-
     @Test(expected = NoSocketException.class)
     public void receivesMessageFromServer() throws IOException, NoSocketException {
+        fakeServer = new FakeServer(port);
+        fakeServer.startAsync();
+        fakeServer.awaitRunning();
+        Socket socket = new Socket("localhost", port);
+
         String message = "You are number: 1";
-
-        Socket socket = new Socket(host, port);
-
         fakeServer.messageToClient(message, true);
 
         context.checking(new Expectations() {{
@@ -70,41 +64,40 @@ public class ClientTest {
             oneOf(console).readMessage();
             will(returnValue("test"));
         }});
-
-
         client.run(socket);
-
     }
 
     @Test(expected = NoSocketException.class)
     public void receivesSecondMessageFromServer() throws IOException, NoSocketException {
+        fakeServer = new FakeServer(port + 2);
+        fakeServer.startAsync();
+        fakeServer.awaitRunning();
+
+        Socket socket = new Socket("localhost", port + 2);
         String messageOne = "one";
-        String messageTwo = "two";
-
-        Socket clientSocket = new Socket(host, port);
-
         fakeServer.messageToClient(messageOne, false);
-        fakeServer.messageToClient(messageTwo, true);
-
+        String messageTwo = "two";
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
-            will(returnValue("message"));
             oneOf(board).printStatus(messageOne);
             oneOf(board).printStatus(messageTwo);
         }});
 
+        fakeServer.messageToClient(messageTwo, true);
 
-        client.run(clientSocket);
-
+        client.run(socket);
     }
 
-    @Test
+    @Test(expected = NoSocketException.class)
     public void sendMessageToServer() throws IOException, NoSocketException {
+        fakeServer = new FakeServer(port + 4);
+        fakeServer.startAsync();
+        fakeServer.awaitRunning();
+
+        Socket socket = new Socket("localhost", port + 4);
+
         String message = "You are number: 1";
-
-        Socket socket = new Socket(host, port);
-
-        fakeServer.messageToClient(message, false);
+        fakeServer.messageToClient(message, true);
 
         String messageToServer = "a message";
 
@@ -112,53 +105,12 @@ public class ClientTest {
             oneOf(console).readMessage();
             will(returnValue(messageToServer));
             oneOf(board).printStatus(message);
-
         }});
 
-        socket.setSoTimeout(100);
 
         client.run(socket);
 
         String readFromServer = fakeServer.receiveFromClient();
         assertThat(messageToServer, is(equalTo(readFromServer)));
     }
-
-
-    private class FakeServer extends AbstractExecutionThreadService {
-
-        private PrintWriter out;
-        private BufferedReader in;
-        Socket clientSocket;
-
-
-        @Override
-        public synchronized void run() {
-            try (ServerSocket serverSocket = new ServerSocket(port, 1, host)) {
-                    clientSocket = serverSocket.accept();
-                    out = new PrintWriter(clientSocket.getOutputStream(), true);
-                    in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public synchronized void messageToClient(String message, boolean closeSocket) {
-            out.println(message);
-            if (closeSocket) {
-                try {
-                    clientSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public synchronized String receiveFromClient() throws IOException {
-            return in.readLine();
-
-        }
-
-    }
-
 }
