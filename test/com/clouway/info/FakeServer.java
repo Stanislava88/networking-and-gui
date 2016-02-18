@@ -13,9 +13,7 @@ public class FakeServer extends AbstractExecutionThreadService {
 
     private PrintWriter out;
     private BufferedReader in;
-    private Socket clientSocket;
     private int port;
-    private ServerSocket serverSocket;
 
     public FakeServer(int port) {
         this.port = port;
@@ -23,45 +21,22 @@ public class FakeServer extends AbstractExecutionThreadService {
 
     @Override
     public synchronized void run() {
-        try {
-            clientSocket = serverSocket.accept();
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
+            Socket clientSocket = serverSocket.accept();
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    protected void startUp() throws IOException {
-        serverSocket = new ServerSocket(port);
-    }
-
-    @Override
-    protected void triggerShutdown() {
-        try {
-            serverSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public synchronized void messageToClient(String message, boolean closeSocket) {
+    public synchronized void sendMessageToClient(String message) {
         out.println(message);
-        if (closeSocket) {
-            try {
-                clientSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
-    public synchronized String receiveFromClient() throws IOException {
+    public String receiveFromClient() throws IOException {
         return in.readLine();
     }
 
-    public void closeSocket() throws IOException {
-        serverSocket.close();
-    }
 }

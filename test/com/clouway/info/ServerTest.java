@@ -85,6 +85,7 @@ public class ServerTest {
         String firstMesssage = readFromServer(firstClient);
 
         Socket secondClient = new Socket(host, port);
+        String secondClientMessaged = readFromServer(secondClient);
 
         String secondMessage = readFromServer(firstClient);
         String expectedSecondMessage = "Client number 2 just joined";
@@ -92,6 +93,7 @@ public class ServerTest {
         synchroniser.waitUntil(working.is("finished"));
         assertThat(firstMesssage, is(equalTo("You are client number: 1")));
         assertThat(secondMessage, is(equalTo(expectedSecondMessage)));
+        assertThat(secondClientMessaged, is(equalTo("You are client number: 2")));
     }
 
     @Test

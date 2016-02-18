@@ -27,15 +27,10 @@ public class ClientDemo {
                 return scanner.nextLine();
             }
         };
-        try {
-            Socket socket = new Socket("localhost", 5050);
-            Client client = new Client(board, console);
-            client.run(socket);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSocketException e) {
-            e.printStackTrace();
-        }
+
+            Client client = new Client(board, console, 5050);
+            client.start();
+
 
     }
 }

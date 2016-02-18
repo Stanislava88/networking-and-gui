@@ -1,6 +1,7 @@
 package com.clouway.info;
 
 import org.jmock.Expectations;
+import org.jmock.States;
 import org.jmock.auto.Mock;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
@@ -10,7 +11,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,15 +21,16 @@ import static org.hamcrest.core.IsEqual.equalTo;
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
  */
 public class ClientTest {
-    private int port;
     private Client client;
     private FakeServer fakeServer;
-    Synchroniser synchroniser = new Synchroniser();
+    private Synchroniser synchroniser = new Synchroniser();
+
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {{
         setThreadingPolicy(synchroniser);
     }};
+
 
     @Mock
     StatusBoard board;
@@ -37,10 +38,14 @@ public class ClientTest {
     @Mock
     ConsoleMessage console;
 
+
     @Before
     public void setUp() throws UnknownHostException {
-        port = 6023;
-        client = new Client(board, console);
+        int port = 6023;
+        client = new Client(board, console, port);
+        fakeServer = new FakeServer(port);
+        fakeServer.startAsync();
+        fakeServer.awaitRunning();
     }
 
     @After
@@ -49,68 +54,67 @@ public class ClientTest {
         fakeServer.awaitTerminated();
     }
 
-    @Test(expected = NoSocketException.class)
-    public void receivesMessageFromServer() throws IOException, NoSocketException {
-        fakeServer = new FakeServer(port);
-        fakeServer.startAsync();
-        fakeServer.awaitRunning();
-        Socket socket = new Socket("localhost", port);
-
+    @Test
+    public void receivesMessageFromServer() throws IOException, NoSocketException, InterruptedException {
+        final States working = context.states("working");
         String message = "You are number: 1";
-        fakeServer.messageToClient(message, true);
-
+        //noinspection Duplicates
         context.checking(new Expectations() {{
-            oneOf(board).printStatus(message);
             oneOf(console).readMessage();
             will(returnValue("test"));
+            when(working.isNot("finished"));
+
+            oneOf(board).printStatus(message);
+            then(working.is("finished"));
         }});
-        client.run(socket);
+        client.start();
+        fakeServer.sendMessageToClient(message);
+        synchroniser.waitUntil(working.is("finished"));
     }
 
-    @Test(expected = NoSocketException.class)
-    public void receivesSecondMessageFromServer() throws IOException, NoSocketException {
-        fakeServer = new FakeServer(port + 2);
-        fakeServer.startAsync();
-        fakeServer.awaitRunning();
+    @Test
+    public void receivesSecondMessageFromServer() throws IOException, NoSocketException, InterruptedException {
+        final States working = context.states("working");
 
-        Socket socket = new Socket("localhost", port + 2);
         String messageOne = "one";
-        fakeServer.messageToClient(messageOne, false);
         String messageTwo = "two";
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
+            when(working.isNot("finished"));
             oneOf(board).printStatus(messageOne);
+            when(working.isNot("finished"));
             oneOf(board).printStatus(messageTwo);
+            then(working.is("finished"));
         }});
+        client.start();
+        fakeServer.sendMessageToClient(messageOne);
+        fakeServer.sendMessageToClient(messageTwo);
+        synchroniser.waitUntil(working.is("finished"));
 
-        fakeServer.messageToClient(messageTwo, true);
-
-        client.run(socket);
     }
 
-    @Test(expected = NoSocketException.class)
-    public void sendMessageToServer() throws IOException, NoSocketException {
-        fakeServer = new FakeServer(port + 4);
-        fakeServer.startAsync();
-        fakeServer.awaitRunning();
 
-        Socket socket = new Socket("localhost", port + 4);
-
+    @Test
+    public void sendMessageToServer() throws IOException, NoSocketException, InterruptedException {
+        final States working = context.states("working");
         String message = "You are number: 1";
-        fakeServer.messageToClient(message, true);
-
         String messageToServer = "a message";
 
+        //noinspection Duplicates
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
             will(returnValue(messageToServer));
+            when(working.isNot("finished"));
+
             oneOf(board).printStatus(message);
+            then(working.is("finished"));
         }});
+        client.start();
+        fakeServer.sendMessageToClient(message);
 
-
-        client.run(socket);
 
         String readFromServer = fakeServer.receiveFromClient();
+        synchroniser.waitUntil(working.is("finished"));
         assertThat(messageToServer, is(equalTo(readFromServer)));
     }
 }
