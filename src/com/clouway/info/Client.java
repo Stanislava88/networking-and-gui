@@ -32,6 +32,8 @@ public class Client extends Thread {
             out.println(toServer);
             while ((fromServer = in.readLine()) != null) {
                 board.printStatus(fromServer);
+            }if (in.readLine() == null) {
+                throw new NoSocketException("socket closed");
             }
         } catch (IOException e) {
             e.printStackTrace();

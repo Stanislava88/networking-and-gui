@@ -35,7 +35,7 @@ public class FakeServer extends AbstractExecutionThreadService {
         out.println(message);
     }
 
-    public String receiveFromClient() throws IOException {
+    public synchronized String receiveFromClient() throws IOException {
         return in.readLine();
     }
 

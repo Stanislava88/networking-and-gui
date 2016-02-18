@@ -1,7 +1,5 @@
 package com.clouway.info;
 
-import java.util.Scanner;
-
 /**
  * @author Krasimir Raikov(raikov.krasimir@gmail.com)
  */

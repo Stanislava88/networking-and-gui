@@ -44,21 +44,18 @@ public class ClientTest {
         int port = 6023;
         client = new Client(board, console, port);
         fakeServer = new FakeServer(port);
-        fakeServer.startAsync();
-        fakeServer.awaitRunning();
+        fakeServer.startAsync().awaitRunning();
     }
 
     @After
     public void tearDown() {
-        fakeServer.stopAsync();
-        fakeServer.awaitTerminated();
+        fakeServer.stopAsync().awaitTerminated();
     }
 
     @Test
     public void receivesMessageFromServer() throws IOException, NoSocketException, InterruptedException {
         final States working = context.states("working");
         String message = "You are number: 1";
-        //noinspection Duplicates
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
             will(returnValue("test"));
@@ -100,7 +97,7 @@ public class ClientTest {
         String message = "You are number: 1";
         String messageToServer = "a message";
 
-        //noinspection Duplicates
+
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
             will(returnValue(messageToServer));
