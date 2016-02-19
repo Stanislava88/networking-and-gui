@@ -21,8 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static com.clouway.conversation.util.CalendarUtil.february;
 import static com.clouway.conversation.util.CalendarUtil.january;
@@ -37,7 +35,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 public class ServerTest {
     Server server = null;
     private Date date = null;
-    private int port=5050;
+    private int port = 5050;
 
     InetAddress host = null;
 
@@ -45,7 +43,7 @@ public class ServerTest {
     @Parameterized.Parameters(name = "{index}:{0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {january(2016, 23)}, {january(2016, 24)}, { january(2013, 13)}, { february(1994, 4)}
+                {january(2016, 23)}, {january(2016, 24)}, {january(2013, 13)}, {february(1994, 4)}
         });
     }
 
@@ -74,11 +72,8 @@ public class ServerTest {
     @After
     public void tearDown() {
         server.stopAsync();
-        try {
-            server.awaitTerminated(1, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
+        server.awaitTerminated();
+
     }
 
 
