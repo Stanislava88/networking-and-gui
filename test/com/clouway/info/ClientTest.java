@@ -54,15 +54,19 @@ public class ClientTest {
 
     @Test
     public void receivesMessageFromServer() throws IOException, NoSocketException, InterruptedException {
+        final States working = context.states("working");
         String message = "You are number: 1";
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
             will(returnValue("test"));
+            when(working.isNot("finished"));
 
             oneOf(board).printStatus(message);
+            then(working.is("finished"));
         }});
         client.start();
         fakeServer.sendMessageToClient(message);
+        synchroniser.waitUntil(working.is("finished"));
     }
 
     @Test
@@ -89,6 +93,7 @@ public class ClientTest {
 
     @Test
     public void sendMessageToServer() throws IOException, NoSocketException, InterruptedException {
+        final States working = context.states("working");
         String message = "You are number: 1";
         String messageToServer = "a message";
 
@@ -96,14 +101,17 @@ public class ClientTest {
         context.checking(new Expectations() {{
             oneOf(console).readMessage();
             will(returnValue(messageToServer));
+            when(working.isNot("finished"));
 
             oneOf(board).printStatus(message);
+            then(working.is("finished"));
         }});
         client.start();
         fakeServer.sendMessageToClient(message);
 
 
         String readFromServer = fakeServer.receiveFromClient();
+        synchroniser.waitUntil(working.is("finished"));
         assertThat(messageToServer, is(equalTo(readFromServer)));
     }
 }

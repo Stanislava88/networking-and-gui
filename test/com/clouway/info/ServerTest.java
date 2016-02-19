@@ -93,11 +93,14 @@ public class ServerTest {
 
     @Test
     public void serverReceiveMessageFromClient() throws IOException, InterruptedException {
+        final States working = context.states("working");
         String messageFromClient = "i";
 
         context.checking(new Expectations() {{
             oneOf(console).printMessage("Client number: 1, has just connected");
+            when(working.isNot("finished"));
             oneOf(console).printMessage(messageFromClient);
+            then(working.is("finished"));
 
         }});
 
@@ -107,6 +110,7 @@ public class ServerTest {
         writeToServer(client, messageFromClient);
         String expectedMessage = "You are client number: 1";
 
+        synchroniser.waitUntil(working.is("finished"));
         assertThat(serverMessage, is(equalTo(expectedMessage)));
     }
 
