@@ -3,6 +3,7 @@ package com.clouway.clientserver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
@@ -28,6 +29,7 @@ public class Client {
 
         while ((readLine = in.readLine()) != null) {
             display.show(readLine);
+            System.out.println(readLine);
         }
 
         in.close();
