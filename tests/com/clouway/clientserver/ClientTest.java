@@ -36,8 +36,10 @@ public class ClientTest {
             try {
                 server = new ServerSocket(port);
                 Socket socket = server.accept();
+
                 OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
                 out.write("Hello");
+
                 out.close();
                 socket.close();
             } catch (IOException e) {

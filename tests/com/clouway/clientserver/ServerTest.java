@@ -28,12 +28,14 @@ public class ServerTest {
     }};
 
     private Time time = context.mock(Time.class);
+
     private DateServer server;
     private final int port = 8080;
 
     public class FakeClient {
         public String connect() throws IOException {
             String message = null;
+
             Socket socket = new Socket("localhost", port);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String readLine;
