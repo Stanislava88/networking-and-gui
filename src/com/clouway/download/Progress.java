@@ -1,4 +1,4 @@
-package com.clouway;
+package com.clouway.download;
 
 /**
  * The implementation of this interface will be used to update progress by download

@@ -1,4 +1,4 @@
-package com.clouway;
+package com.clouway.download;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -74,16 +74,12 @@ public class DownloadAgentTest {
 
         agent = new DownloadAgent(url, destination, progress);
 
-        context.checking(new Expectations() {{
-            allowing(progress).update(with(any(Integer.class)));
-        }});
-
         agent.download(1026);
     }
 
     @Test
     public void downloadUnevenSizeFile() throws Exception {
-        file.setLength(4097);
+        file.setLength(7777);
 
         DownloadAgent agent = new DownloadAgent(url, destination, progress);
 

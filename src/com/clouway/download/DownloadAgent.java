@@ -1,4 +1,4 @@
-package com.clouway;
+package com.clouway.download;
 
 import java.io.*;
 import java.net.URL;
@@ -21,7 +21,7 @@ public class DownloadAgent {
     public int download(int bufferSize) throws IOException {
         URL url = new URL(source);
         URLConnection connection = url.openConnection();
-        InputStream input = url.openStream();
+        InputStream input = connection.getInputStream();
         OutputStream output = new BufferedOutputStream(new FileOutputStream(destination));
 
         int inputSize = connection.getContentLength();
@@ -36,10 +36,9 @@ public class DownloadAgent {
             int percent = downloaded * 100 / inputSize;
             progress.update(percent);
 
+            output.flush();
             output.write(data, 0, readBytes);
         }
-
-        output.flush();
 
         input.close();
         output.close();
