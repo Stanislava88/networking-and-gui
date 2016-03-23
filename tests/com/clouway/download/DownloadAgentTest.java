@@ -37,9 +37,9 @@ public class DownloadAgentTest {
     public void setUp() throws IOException {
         folder.create();
 
-        file = new RandomAccessFile("file.txt", "rw");
-        source = new File("file.txt");
-        destination = folder.newFile().toString();
+        file = new RandomAccessFile("sourceFile.txt", "rw");
+        source = new File("sourceFile.txt");
+        destination = folder.newFile("destinationFile.txt").toString();
 
         url = source.toURI().toURL().toString();
     }
