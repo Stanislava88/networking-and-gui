@@ -36,8 +36,8 @@ public class DownloadAgent {
             int percent = downloaded * 100 / inputSize;
             progress.update(percent);
 
-            output.flush();
             output.write(data, 0, readBytes);
+            output.flush();
         }
 
         input.close();

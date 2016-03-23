@@ -23,7 +23,7 @@ public class DownloadAgentTest {
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
-    public TemporaryFolder folder = new TemporaryFolder();
+    private TemporaryFolder folder = new TemporaryFolder();
 
     private RandomAccessFile file;
     private File source;
