@@ -2,6 +2,7 @@ package com.clouway.clientserver;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,14 +26,15 @@ public class ClientTest {
     private Display display = context.mock(Display.class);
 
     private Client client;
-    private int port = 2022;
+    private int port = 2024;
     private String host = "localhost";
+    private ServerSocket server;
 
     public class FakeDateServer extends Thread {
         @Override
         public void run() {
             try {
-                ServerSocket server = new ServerSocket(port);
+                server = new ServerSocket(port);
                 Socket socket = server.accept();
                 OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
                 out.write("Hello");
@@ -49,13 +51,18 @@ public class ClientTest {
         client = new Client(port, host, display);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        server.close();
+    }
+
     @Test
     public void happyPath() throws Exception {
         FakeDateServer server = new FakeDateServer();
         server.start();
 
         context.checking(new Expectations() {{
-            allowing(display).show("Hello");
+            atLeast(1).of(display).show("Hello");
         }});
 
         client.connect();
