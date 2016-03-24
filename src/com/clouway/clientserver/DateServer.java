@@ -12,12 +12,12 @@ import java.util.Date;
  */
 public class DateServer extends Thread {
     private int port;
-    private Time time;
+    private Clock clock;
     private ServerSocket serverSocket;
 
-    public DateServer(int port, Time time) {
+    public DateServer(int port, Clock clock) {
         this.port = port;
-        this.time = time;
+        this.clock = clock;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class DateServer extends Thread {
             Socket socket = serverSocket.accept();
 
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
-            Date date = time.getTime();
+            Date date = clock.getTime();
             out.write("Hello!" + date );
 
             out.close();

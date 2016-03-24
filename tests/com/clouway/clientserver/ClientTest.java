@@ -11,10 +11,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import static org.hamcrest.core.Is.is;
 
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
@@ -25,20 +21,15 @@ public class ClientTest {
 
     private Display display = context.mock(Display.class);
 
-    private Client client;
-    private int port = 2024;
-    private String host = "localhost";
-    private ServerSocket server;
-
-    public class FakeDateServer extends Thread {
+    class FakeDateServer extends Thread {
         @Override
         public void run() {
             try {
-                server = new ServerSocket(port);
+                server = new ServerSocket(2024);
                 Socket socket = server.accept();
 
                 OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
-                out.write("Hello");
+                out.write("Some text");
 
                 out.close();
                 socket.close();
@@ -48,9 +39,14 @@ public class ClientTest {
         }
     }
 
+    private Client client;
+    private ServerSocket server;
+
     @Before
     public void setUp() throws Exception {
-        client = new Client(port, host, display);
+        String host = "localhost";
+
+        client = new Client(2024, host, display);
     }
 
     @After
@@ -64,7 +60,7 @@ public class ClientTest {
         server.start();
 
         context.checking(new Expectations() {{
-            atLeast(1).of(display).show("Hello");
+            oneOf(display).show("Some text");
         }});
 
         client.connect();

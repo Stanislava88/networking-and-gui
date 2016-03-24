@@ -28,7 +28,6 @@ public class Client {
 
         while ((readLine = in.readLine()) != null) {
             display.show(readLine);
-            System.out.println(readLine);
         }
 
         in.close();

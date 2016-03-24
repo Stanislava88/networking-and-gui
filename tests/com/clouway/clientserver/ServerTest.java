@@ -27,12 +27,7 @@ public class ServerTest {
         setThreadingPolicy(new Synchroniser());
     }};
 
-    private Time time = context.mock(Time.class);
-
-    private DateServer server;
-    private final int port = 8080;
-
-    public class FakeClient {
+    class FakeClient {
         public String connect() throws IOException {
             String message = null;
 
@@ -45,13 +40,18 @@ public class ServerTest {
 
             in.close();
             socket.close();
+
             return message;
         }
     }
 
+    private Clock clock = context.mock(Clock.class);
+
+    private final int port = 8080;
+    private DateServer server = new DateServer(port, clock);
+
     @Before
     public void setUp() throws Exception {
-        server = new DateServer(port, time);
         server.start();
     }
 
@@ -66,12 +66,14 @@ public class ServerTest {
         final Date date = new Date();
 
         context.checking(new Expectations() {{
-            oneOf(time).getTime();
+            oneOf(clock).getTime();
             will(returnValue(date));
         }});
 
         String actual = client.connect();
         String expected = "Hello!" + date;
+
+        System.out.println(expected);
 
         assertThat(expected, is(actual));
     }

@@ -7,7 +7,7 @@ import java.util.Date;
  *
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
-public interface Time {
+public interface Clock {
     /**
      * Will return Date
      *
