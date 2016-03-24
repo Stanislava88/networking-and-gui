@@ -39,6 +39,5 @@ public class DateServer extends Thread {
 
     public void close() throws IOException {
         serverSocket.close();
-        System.out.println("The server is close!");
     }
 }
