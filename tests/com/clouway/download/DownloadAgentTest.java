@@ -36,12 +36,6 @@ public class DownloadAgentTest {
     @Before
     public void setUp() throws IOException {
         folder.create();
-
-        file = new RandomAccessFile("sourceFile.txt", "rw");
-        source = new File("sourceFile.txt");
-        destination = folder.newFile("destinationFile.txt").toString();
-
-        url = source.toURI().toURL().toString();
     }
 
     @After
@@ -51,6 +45,12 @@ public class DownloadAgentTest {
 
     @Test
     public void happyPath() throws Exception {
+        file = new RandomAccessFile("sourceFile.txt", "rw");
+        source = new File("sourceFile.txt");
+        destination = folder.newFile("destinationFile.txt").toString();
+
+        url = source.toURI().toURL().toString();
+
         file.setLength(4096);
         agent = new DownloadAgent(url, destination, progress);
 
@@ -79,6 +79,12 @@ public class DownloadAgentTest {
 
     @Test
     public void downloadUnevenSizeFile() throws Exception {
+        file = new RandomAccessFile("sourceFile.txt", "rw");
+        source = new File("sourceFile.txt");
+        destination = folder.newFile("destinationFile.txt").toString();
+
+        url = source.toURI().toURL().toString();
+
         file.setLength(7777);
 
         DownloadAgent agent = new DownloadAgent(url, destination, progress);
