@@ -62,7 +62,7 @@ public class DownloadAgentTest {
         }});
 
         int expected = (int) source.length();
-        int actual = agent.download(1024);
+        int actual = agent.download();
 
         assertThat(actual, is(expected));
     }
@@ -74,7 +74,7 @@ public class DownloadAgentTest {
 
         agent = new DownloadAgent(url, destination, progress);
 
-        agent.download(1026);
+        agent.download();
     }
 
     @Test
@@ -88,7 +88,7 @@ public class DownloadAgentTest {
         }});
 
         int expected = (int) source.length();
-        int actual = agent.download(1024);
+        int actual = agent.download();
 
         assertThat(actual, is(expected));
     }

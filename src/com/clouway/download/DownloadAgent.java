@@ -18,7 +18,7 @@ public class DownloadAgent {
         this.progress = progress;
     }
 
-    public int download(int bufferSize) throws IOException {
+    public int download() throws IOException {
         URL url = new URL(source);
         URLConnection connection = url.openConnection();
         InputStream input = connection.getInputStream();
@@ -27,7 +27,7 @@ public class DownloadAgent {
         int inputSize = connection.getContentLength();
         int readBytes;
         int downloaded = 0;
-        byte[] data = new byte[bufferSize];
+        byte[] data = new byte[1024];
 
         while ((readBytes = input.read(data)) > 0) {
 
