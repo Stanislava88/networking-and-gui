@@ -25,10 +25,7 @@ public class DownloadAgentTest {
 
     private TemporaryFolder folder = new TemporaryFolder();
 
-    private RandomAccessFile file;
     private File source;
-    private String url;
-    private String destination;
 
     private Progress progress = context.mock(Progress.class);
     private DownloadAgent agent;
@@ -45,11 +42,11 @@ public class DownloadAgentTest {
 
     @Test
     public void happyPath() throws Exception {
-        file = new RandomAccessFile("sourceFile.txt", "rw");
         source = new File("sourceFile.txt");
-        destination = folder.newFile("destinationFile.txt").toString();
+        RandomAccessFile file = new RandomAccessFile("sourceFile.txt", "rw");
+        String destination = folder.newFile("destinationFile.txt").toString();
 
-        url = source.toURI().toURL().toString();
+        String url = source.toURI().toURL().toString();
 
         file.setLength(4096);
         agent = new DownloadAgent(url, destination, progress);
@@ -70,20 +67,21 @@ public class DownloadAgentTest {
     @Test(expected = FileNotFoundException.class)
     public void downloadUnknownFile() throws Exception {
         source = new File("text_file.txt");
-        url = source.toURI().toURL().toString();
+        String url = source.toURI().toURL().toString();
+        String destination = folder.newFile("destinationFile.txt").toString();
 
         agent = new DownloadAgent(url, destination, progress);
 
         agent.download();
     }
-
+    
     @Test
     public void downloadUnevenSizeFile() throws Exception {
-        file = new RandomAccessFile("sourceFile.txt", "rw");
         source = new File("sourceFile.txt");
-        destination = folder.newFile("destinationFile.txt").toString();
+        RandomAccessFile file = new RandomAccessFile("sourceFile.txt", "rw");
+        String destination = folder.newFile("destinationFile.txt").toString();
 
-        url = source.toURI().toURL().toString();
+        String url = source.toURI().toURL().toString();
 
         file.setLength(7777);
 
