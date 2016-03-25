@@ -17,10 +17,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
 public class ServerTest {
-    private int port = 3030;
-    private MultiServer server;
+    public final int port = 3030;
 
-    public class FakeClient extends Thread {
+    class FakeClient extends Thread {
         public String connect() throws IOException {
             String read;
             String host = "localhost";
@@ -38,10 +37,12 @@ public class ServerTest {
         }
     }
 
+    private MultiServer server;
 
     @Before
     public void setUp() throws Exception {
         server = new MultiServer(port);
+
         server.start();
     }
 
@@ -53,16 +54,25 @@ public class ServerTest {
     @Test
     public void happyPath() throws Exception {
         FakeClient client1 = new FakeClient();
-        FakeClient client2 = new FakeClient();
+
+        String expected1 = "You are client #: 1";
+        String actual1 = client1.connect();
+
+        assertThat(expected1, is(actual1));
+    }
+
+    @Test
+    public void multipleConnection() throws Exception {
+        FakeClient client1 = new FakeClient();
 
         String expected1 = "You are client #: 1";
         String actual1 = client1.connect();
 
         String expected2 = "You are client #: 2";
-        String actual2 = client2.connect();
+        String actual2 = client1.connect();
 
         String expected3 = "You are client #: 3";
-        String actual3 = client2.connect();
+        String actual3 = client1.connect();
 
         assertThat(expected1, is(actual1));
         assertThat(expected2, is(actual2));

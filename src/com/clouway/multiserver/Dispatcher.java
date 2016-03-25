@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
-public class Dispatcher extends Thread {
+public class Dispatcher {
     List<Object> listOfClients = new ArrayList<>();
 
     public synchronized void add(Socket socket) {

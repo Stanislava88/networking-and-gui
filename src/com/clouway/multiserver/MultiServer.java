@@ -22,15 +22,14 @@ public class MultiServer extends Thread {
             serverSocket = new ServerSocket(port);
 
             dispatcher = new Dispatcher();
-            dispatcher.start();
 
-            Socket socket;
             while (!isInterrupted()) {
-                socket = serverSocket.accept();
+                Socket socket = serverSocket.accept();
 
                 dispatcher.add(socket);
 
-                ClientHandler thread = new ClientHandler(socket,dispatcher);
+                ClientHandler thread = new ClientHandler(socket, dispatcher);
+
                 thread.run();
                 socket.close();
             }
