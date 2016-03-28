@@ -25,7 +25,7 @@ public class ClientTest {
         @Override
         public void run() {
             try {
-                server = new ServerSocket(2024);
+                ServerSocket server = new ServerSocket(2024);
                 Socket socket = server.accept();
 
                 OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
@@ -33,6 +33,7 @@ public class ClientTest {
 
                 out.close();
                 socket.close();
+                server.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -40,18 +41,12 @@ public class ClientTest {
     }
 
     private Client client;
-    private ServerSocket server;
 
     @Before
     public void setUp() throws Exception {
         String host = "localhost";
 
         client = new Client(2024, host, display);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        server.close();
     }
 
     @Test
