@@ -55,11 +55,6 @@ public class ServerTest {
         server.start();
     }
 
-    @After
-    public void tearDown() throws Exception {
-        server.close();
-    }
-
     @Test
     public void happyPath() throws Exception {
         FakeClient client = new FakeClient();
