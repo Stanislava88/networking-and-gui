@@ -8,7 +8,7 @@ import java.util.Vector;
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
-public class Dispatcher {
+public class Dispatcher extends Thread {
     private Vector<ClientHandler> listOfClients = new Vector<>();
 
     public synchronized void add(ClientHandler socket) {

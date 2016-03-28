@@ -22,7 +22,9 @@ public class ClientHandler extends Thread {
             String message = "You are client #: " + dispatcher.getNumber();
 
             send(message);
+
             dispatcher.sendMessageToAll();
+
         } catch (IOException ex) {
             return;
         }

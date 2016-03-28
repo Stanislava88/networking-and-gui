@@ -8,7 +8,7 @@ import java.net.Socket;
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
 public class MultiServer extends Thread {
-    private int port;
+    private final int port;
     private ServerSocket serverSocket;
     private Dispatcher dispatcher;
 
@@ -23,10 +23,11 @@ public class MultiServer extends Thread {
 
             dispatcher = new Dispatcher();
 
-            while (!isInterrupted()) {
+            while (true) {
                 Socket socket = serverSocket.accept();
 
                 ClientHandler thread = new ClientHandler(socket, dispatcher);
+
                 dispatcher.add(thread);
 
                 thread.run();
