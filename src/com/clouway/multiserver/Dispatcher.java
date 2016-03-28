@@ -1,20 +1,29 @@
 package com.clouway.multiserver;
 
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+
+import java.util.Vector;
 
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
 public class Dispatcher {
-    List<Object> listOfClients = new ArrayList<>();
+    private Vector<ClientHandler> listOfClients = new Vector<>();
 
-    public synchronized void add(Socket socket) {
+    public synchronized void add(ClientHandler socket) {
         listOfClients.add(socket);
     }
 
     public synchronized int getNumber() {
         return listOfClients.size();
     }
+
+    public synchronized void sendMessageToAll() throws IOException {
+        for (ClientHandler each : listOfClients) {
+            String message = "Client #" + (listOfClients.size() + 1) + "is connected";
+            System.out.println(message);
+            each.send(message);
+        }
+    }
 }
+

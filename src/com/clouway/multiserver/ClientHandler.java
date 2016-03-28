@@ -19,17 +19,22 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         try {
-            OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
-
             String message = "You are client #: " + dispatcher.getNumber();
-            writer.write(message);
 
-            writer.flush();
-
-            writer.close();
-            socket.close();
+            send(message);
+            dispatcher.sendMessageToAll();
         } catch (IOException ex) {
             return;
         }
+    }
+
+    public synchronized void send(String msg) throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+        writer.write(msg);
+
+        writer.flush();
+
+        writer.close();
+        socket.close();
     }
 }
