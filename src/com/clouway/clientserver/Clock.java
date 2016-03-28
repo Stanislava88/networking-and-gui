@@ -9,9 +9,9 @@ import java.util.Date;
  */
 public interface Clock {
     /**
-     * Will return Date
+     * Will return Date current Date
      *
      * @return current time
      */
-    Date getTime();
+    Date getDate();
 }

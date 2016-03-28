@@ -24,16 +24,13 @@ public class ClientTest {
     class FakeDateServer extends Thread {
         @Override
         public void run() {
-            try {
-                ServerSocket server = new ServerSocket(2024);
-                Socket socket = server.accept();
+            try (ServerSocket server = new ServerSocket(2024);
+                 Socket socket = server.accept()) {
 
                 OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
                 out.write("Some text");
 
                 out.close();
-                socket.close();
-                server.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

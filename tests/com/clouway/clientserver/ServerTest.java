@@ -66,14 +66,12 @@ public class ServerTest {
         final Date date = new Date();
 
         context.checking(new Expectations() {{
-            oneOf(clock).getTime();
+            oneOf(clock).getDate();
             will(returnValue(date));
         }});
 
         String actual = client.connect();
         String expected = "Hello!" + date;
-
-        System.out.println(expected);
 
         assertThat(expected, is(actual));
     }

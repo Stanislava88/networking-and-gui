@@ -11,7 +11,7 @@ import java.util.Date;
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
 public class DateServer extends Thread {
-    private int port;
+    private final int port;
     private Clock clock;
     private ServerSocket serverSocket;
 
@@ -27,8 +27,8 @@ public class DateServer extends Thread {
             Socket socket = serverSocket.accept();
 
             OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
-            Date date = clock.getTime();
-            out.write("Hello!" + date );
+            Date date = clock.getDate();
+            out.write("Hello!" + date);
 
             out.close();
             socket.close();
