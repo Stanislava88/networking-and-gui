@@ -84,14 +84,19 @@ public class ServerTest {
     @Test
     public void sendMessageToAll() throws Exception {
         FakeClient client1 = new FakeClient();
-        String expected1 = "You are client #: 1" + "Client # 2 is connected " + "Client #3 is connected";
+        String expected1 = "You are client #: 1" + "Client # 2 is connected ";
         String actual1 = client1.connect();
 
         FakeClient client2 = new FakeClient();
-        String expected2 = "You are client #: 2" + "Clint # 3 is connected";
+        String expected2 = "You are client #: 2";
         String actual2 = client2.connect();
+
+        FakeClient client3 = new FakeClient();
+        String expected3 = "You are client #: 2";
+        String actual3 = client3.connect();
 
         assertThat(actual1, is(expected1));
         assertThat(actual2, is(expected2));
+        assertThat(actual3, is(expected3));
     }
 }

@@ -2,6 +2,7 @@ package com.clouway.multiserver;
 
 import java.io.IOException;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -19,11 +20,13 @@ public class Dispatcher {
     }
 
     public synchronized void sendMessageToAll() throws IOException {
-        for (ClientHandler each : listOfClients) {
-            String message = "Client #" + (listOfClients.size() + 1) + "is connected";
+        for (int i = 0; i < listOfClients.size() - 1; i++) {
+            ClientHandler connected = listOfClients.get(i);
+            String message = "Client #" + (listOfClients.size()) + "is connected";
             System.out.println(message);
-            each.send(message);
+            connected.send(message);
         }
     }
 }
+
 
