@@ -1,30 +1,44 @@
 package com.clouway.multiserver;
 
-import java.io.IOException;
 
-import java.util.Iterator;
-import java.util.Vector;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
-public class Dispatcher extends Thread {
-    private Vector<ClientHandler> listOfClients = new Vector<>();
+public class Dispatcher {
+    private List<Socket> sockets = new ArrayList<>();
+    private Notifier notifier;
 
-    public synchronized void add(ClientHandler socket) {
-        listOfClients.add(socket);
+    public Dispatcher(Notifier notifier) {
+        this.notifier = notifier;
+    }
+
+    public synchronized void add(Socket socket) {
+        if (!sockets.contains(socket)) {
+            sockets.add(socket);
+        }
     }
 
     public synchronized int getNumber() {
-        return listOfClients.size();
+        return sockets.size();
     }
 
-    public synchronized void sendMessageToAll() throws IOException {
-        for (int i = 0; i < listOfClients.size() - 1; i++) {
-            ClientHandler connected = listOfClients.get(i);
-            String message = "Client #" + (listOfClients.size()) + "is connected";
-            System.out.println(message);
-            connected.send(message);
+    public synchronized void notifyClients() throws IOException, InterruptedException {
+        if (sockets.isEmpty()) {
+            return;
+        }
+
+        for (Socket socket : sockets) {
+            String msg = "Client " + (sockets.size() + 1) + "is connected";
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            out.println(msg);
+            notifier.notify(msg);
         }
     }
 }

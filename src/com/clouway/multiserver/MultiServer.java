@@ -9,32 +9,38 @@ import java.net.Socket;
  */
 public class MultiServer extends Thread {
     private final int port;
-    private ServerSocket serverSocket;
-    private Dispatcher dispatcher;
 
-    public MultiServer(int port) {
+    private Display display;
+    private Notifier notifier;
+
+    private ServerSocket serverSocket;
+
+    public MultiServer(int port, Display display, Notifier notifier) {
         this.port = port;
+        this.display = display;
+        this.notifier = notifier;
     }
 
     @Override
     public void run() {
         try {
             serverSocket = new ServerSocket(port);
-
-            dispatcher = new Dispatcher();
+            Dispatcher dispatcher = new Dispatcher(notifier);
+            Socket socket;
 
             while (true) {
-                Socket socket = serverSocket.accept();
+                socket = serverSocket.accept();
 
-                ClientHandler thread = new ClientHandler(socket, dispatcher);
+                dispatcher.notifyClients();
 
-                dispatcher.add(thread);
+                ClientHandler client = new ClientHandler(socket, display, dispatcher);
 
-                thread.run();
-                socket.close();
+                dispatcher.add(socket);
+
+                client.start();
             }
         } catch (Exception e) {
-            return;
+            e.getStackTrace();
         }
     }
 
