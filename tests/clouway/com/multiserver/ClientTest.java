@@ -16,6 +16,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
@@ -34,8 +35,7 @@ public class ClientTest {
 
 
         public void run() {
-            try {
-                server = new ServerSocket(port);
+            try (ServerSocket server = new ServerSocket(port)) {
                 Socket socket = server.accept();
 
                 out = new PrintWriter(socket.getOutputStream(), true);
@@ -60,12 +60,6 @@ public class ClientTest {
     private ArrayList<String> messages;
 
     private PrintWriter out;
-    private ServerSocket server;
-
-    @After
-    public void tearDown() throws Exception {
-        server.close();
-    }
 
     @Test
     public void happyPath() throws Exception {
