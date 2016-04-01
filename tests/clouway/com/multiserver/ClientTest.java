@@ -38,29 +38,22 @@ public class ClientTest {
             try (ServerSocket server = new ServerSocket(port)) {
                 Socket socket = server.accept();
 
-                out = new PrintWriter(socket.getOutputStream(), true);
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                connect();
-
+                for (String message : messages) {
+                    out.println(message);
+                }
                 in.readLine();
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-        }
-
-        private synchronized void connect() {
-            for (String message : messages) {
-                out.println(message);
             }
         }
     }
 
     private final int port = 2020;
     private ArrayList<String> messages;
-
-    private PrintWriter out;
-
+    
     @Test
     public void happyPath() throws Exception {
         final States status = context.states("status");
