@@ -40,7 +40,7 @@ public class Client extends Thread {
                 display.show(in.readLine());
 
                 if (in.readLine() == null) {
-                    throw new NoSocketException("Socket is closed");
+                    throw new ClosedSocketException("Socket is closed");
                 }
             }
         } catch (IOException e) {
