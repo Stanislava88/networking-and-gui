@@ -10,11 +10,11 @@ import java.util.List;
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
-public class Dispatcher {
+public class NotifyAgent {
     private List<Socket> sockets = new ArrayList<>();
     private Display display;
 
-    public Dispatcher(Display display) {
+    public NotifyAgent(Display display) {
         this.display = display;
     }
 

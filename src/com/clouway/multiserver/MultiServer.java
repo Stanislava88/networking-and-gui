@@ -25,17 +25,17 @@ public class MultiServer extends AbstractExecutionThreadService {
     public void run() {
         try {
             serverSocket = new ServerSocket(port);
-            Dispatcher dispatcher = new Dispatcher(display);
+            NotifyAgent notifyAgent = new NotifyAgent(display);
             Socket socket;
 
             while (true) {
                 socket = serverSocket.accept();
 
-                dispatcher.notifyClients();
+                notifyAgent.notifyClients();
 
-                ClientHandler client = new ClientHandler(socket, display, dispatcher);
+                ClientHandler client = new ClientHandler(socket, display, notifyAgent);
 
-                dispatcher.add(socket);
+                notifyAgent.add(socket);
 
                 client.start();
             }

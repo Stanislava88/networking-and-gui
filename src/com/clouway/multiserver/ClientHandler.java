@@ -11,13 +11,13 @@ import java.net.Socket;
  */
 public class ClientHandler extends Thread {
     private Socket socket;
-    private Dispatcher dispatcher;
+    private NotifyAgent notifyAgent;
     private Display display;
 
-    public ClientHandler(Socket socket, Display display, Dispatcher dispatcher) {
+    public ClientHandler(Socket socket, Display display, NotifyAgent notifyAgent) {
         this.socket = socket;
         this.display = display;
-        this.dispatcher = dispatcher;
+        this.notifyAgent = notifyAgent;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class ClientHandler extends Thread {
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            String msg = "You are client number: " + dispatcher.getNumber();
+            String msg = "You are client number: " + notifyAgent.getNumber();
 
             writer.println(msg);
             display.show(msg);
