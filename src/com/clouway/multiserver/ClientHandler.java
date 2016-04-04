@@ -26,13 +26,13 @@ public class ClientHandler extends Thread {
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            String msg = "You are client " + dispatcher.getNumber();
+            String msg = "You are client number: " + dispatcher.getNumber();
 
             writer.println(msg);
             display.show(msg);
 
-            String fromClient = in.readLine();
-            display.show(fromClient);
+            String input = in.readLine();
+            display.show(input);
         } catch (IOException e) {
             e.printStackTrace();
         }

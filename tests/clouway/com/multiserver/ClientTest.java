@@ -106,14 +106,14 @@ public class ClientTest {
             will(returnValue("Hello Server"));
             when(status.isNot("finished"));
 
-            oneOf(display).show("Hello client 2");
+            oneOf(display).show("You are connected");
             then(status.is("finished"));
         }});
         client.start();
 
         fakeMultiServer.sendMessageToClient("Hello client 1");
         fakeMultiServer.receiveFromClient();
-        fakeMultiServer.sendMessageToClient("Hello client 2");
+        fakeMultiServer.sendMessageToClient("You are connected");
 
         synchroniser.waitUntil(status.is("finished"));
     }

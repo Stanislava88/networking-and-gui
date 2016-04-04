@@ -78,7 +78,7 @@ public class ServerTest {
         final States state = context.states("states");
 
         context.checking(new Expectations() {{
-            oneOf(display).show("You are client 1");
+            oneOf(display).show("You are client number: 1");
             then(state.is("finished"));
         }});
 
@@ -93,13 +93,13 @@ public class ServerTest {
         final States state = context.states("states");
 
         context.checking(new Expectations() {{
-            oneOf(display).show("You are client 1");
+            oneOf(display).show("You are client number: 1");
             when(state.isNot("finished"));
 
             oneOf(display).show("Client 2is connected");
             when(state.isNot("finished"));
 
-            oneOf(display).show("You are client 2");
+            oneOf(display).show("You are client number: 2");
             then(state.is("finished"));
         }});
 
@@ -116,7 +116,7 @@ public class ServerTest {
         final States state = context.states("states");
 
         context.checking(new Expectations() {{
-            oneOf(display).show("You are client 1");
+            oneOf(display).show("You are client number: 1");
             when(state.isNot("finished"));
 
             oneOf(display).show("Hello from  client .");
