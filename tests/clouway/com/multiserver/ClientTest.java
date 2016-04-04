@@ -57,13 +57,15 @@ public class ClientTest {
     }
 
     private final int port = 2020;
-    private Client client;
     private FakeMultiServer fakeMultiServer;
+    private Client client;
+
 
     @Before
     public void setUp() throws Exception {
         fakeMultiServer = new FakeMultiServer();
         fakeMultiServer.startAsync().awaitRunning();
+
         client = new Client("localhost", port, display, console);
     }
 
@@ -92,7 +94,7 @@ public class ClientTest {
     }
 
     @Test
-    public void receiveSecondMessage() throws Exception {
+    public void multiConnections() throws Exception {
         final States status = context.states("status");
 
         context.checking(new Expectations() {{

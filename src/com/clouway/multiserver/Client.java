@@ -30,19 +30,14 @@ public class Client extends Thread {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-            String readFromServer = in.readLine();
-            display.show(readFromServer);
-
             String msg = console.write();
             out.println(msg);
 
-            while (true) {
-                display.show(in.readLine());
-
-                if (in.readLine() == null) {
-                    throw new ClosedSocketException("Socket is closed");
-                }
+            String readFromServer;
+            while ((readFromServer = in.readLine()) != null) {
+                display.show(readFromServer);
             }
+            throw new ClosedSocketException("Socket is closed");
         } catch (IOException e) {
             e.printStackTrace();
         }
