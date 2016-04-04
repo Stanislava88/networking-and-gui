@@ -37,7 +37,9 @@ public class Client extends Thread {
             while ((readFromServer = in.readLine()) != null) {
                 display.show(readFromServer);
             }
-            throw new ClosedSocketException("Socket is closed");
+            socket.close();
+
+            throw new ClosedSocketException();
         } catch (IOException e) {
             e.printStackTrace();
         }

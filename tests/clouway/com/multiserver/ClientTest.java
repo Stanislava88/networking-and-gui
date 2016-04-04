@@ -31,10 +31,11 @@ public class ClientTest {
 
     private Display display = context.mock(Display.class);
     private Console console = context.mock(Console.class);
-    private PrintWriter out;
-    private BufferedReader in;
 
-    public class FakeMultiServer extends AbstractExecutionThreadService {
+    class FakeMultiServer extends AbstractExecutionThreadService {
+        private PrintWriter out;
+        private BufferedReader in;
+
         @Override
         public synchronized void run() {
             try (ServerSocket server = new ServerSocket(port)) {

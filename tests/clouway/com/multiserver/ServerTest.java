@@ -32,7 +32,7 @@ public class ServerTest {
 
     private Display display = context.mock(Display.class);
 
-    public class FakeClient {
+    class FakeClient {
         private Socket socket;
 
         public FakeClient() throws IOException {
