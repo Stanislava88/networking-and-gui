@@ -26,7 +26,7 @@ public class ClientHandler extends Thread {
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            String msg = "You are client number: " + notifyAgent.getNumber();
+            String msg = "You are client number: " + notifyAgent.getClientNumber();
 
             writer.println(msg);
             display.show(msg);
