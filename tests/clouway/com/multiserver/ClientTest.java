@@ -95,7 +95,7 @@ public class ClientTest {
     }
 
     @Test
-    public void multiConnections() throws Exception {
+    public void multipleConnections() throws Exception {
         final States status = context.states("status");
 
         context.checking(new Expectations() {{
