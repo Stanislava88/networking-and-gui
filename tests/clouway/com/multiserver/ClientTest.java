@@ -78,11 +78,11 @@ public class ClientTest {
     public void happyPath() throws Exception {
         final States status = context.states("status");
         context.checking(new Expectations() {{
-            oneOf(display).show("Hello new Client");
-            when(status.isNot("finished"));
-
             oneOf(console).write();
             will(returnValue("Hello Server"));
+            when(status.isNot("finished"));
+
+            oneOf(display).show("Hello new Client");
             then(status.is("finished"));
         }});
 
