@@ -24,8 +24,9 @@ public class Client extends Thread {
 
     @Override
     public void run() {
+        Socket socket = null;
         try {
-            Socket socket = new Socket(host, port);
+            socket = new Socket(host, port);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -37,12 +38,16 @@ public class Client extends Thread {
             while ((readFromServer = in.readLine()) != null) {
                 display.show(readFromServer);
             }
-            socket.close();
-
-            throw new ClosedSocketException();
-        } catch (IOException e) {
+        } catch (IOException | ClosedSocketException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
+
 

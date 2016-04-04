@@ -24,7 +24,7 @@ public class NotifyAgent {
         }
     }
 
-    public synchronized int getClientNumber() {
+    public synchronized int getClientCount() {
         return sockets.size();
     }
 
