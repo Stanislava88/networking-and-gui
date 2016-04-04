@@ -12,10 +12,10 @@ import java.util.List;
  */
 public class Dispatcher {
     private List<Socket> sockets = new ArrayList<>();
-    private Notifier notifier;
+    private Display display;
 
-    public Dispatcher(Notifier notifier) {
-        this.notifier = notifier;
+    public Dispatcher(Display display) {
+        this.display = display;
     }
 
     public synchronized void add(Socket socket) {
@@ -38,7 +38,7 @@ public class Dispatcher {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
             out.println(msg);
-            notifier.notify(msg);
+            display.show(msg);
         }
     }
 }

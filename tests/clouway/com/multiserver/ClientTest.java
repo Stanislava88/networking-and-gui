@@ -3,18 +3,19 @@ package clouway.com.multiserver;
 import com.clouway.multiserver.Client;
 import com.clouway.multiserver.Console;
 import com.clouway.multiserver.Display;
+import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import org.jmock.Expectations;
 import org.jmock.States;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 
 
 /**
@@ -30,42 +31,50 @@ public class ClientTest {
 
     private Display display = context.mock(Display.class);
     private Console console = context.mock(Console.class);
+    private PrintWriter out;
+    private BufferedReader in;
 
-    public class FakeMultiServer extends Thread {
-
-
-        public void run() {
+    public class FakeMultiServer extends AbstractExecutionThreadService {
+        @Override
+        public synchronized void run() {
             try (ServerSocket server = new ServerSocket(port)) {
                 Socket socket = server.accept();
 
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                for (String message : messages) {
-                    out.println(message);
-                }
-                in.readLine();
+                out = new PrintWriter(socket.getOutputStream(), true);
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        private synchronized void sendMessageToClient(String message) {
+            out.println(message);
+        }
+
+        private synchronized void receiveFromClient() throws IOException {
+            in.readLine();
+        }
     }
 
     private final int port = 2020;
-    private ArrayList<String> messages;
-    
+    private Client client;
+    private FakeMultiServer fakeMultiServer;
+
+    @Before
+    public void setUp() throws Exception {
+        fakeMultiServer = new FakeMultiServer();
+        fakeMultiServer.startAsync().awaitRunning();
+        client = new Client("localhost", port, display, console);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        fakeMultiServer.awaitTerminated();
+    }
+
     @Test
     public void happyPath() throws Exception {
         final States status = context.states("status");
-
-        final FakeMultiServer server = new FakeMultiServer();
-        server.start();
-
-        messages = new ArrayList<>();
-        messages.add("Hello new Client");
-
-        Client client = new Client("localhost", port, display, console);
-
         context.checking(new Expectations() {{
             oneOf(display).show("Hello new Client");
             when(status.isNot("finished"));
@@ -76,6 +85,8 @@ public class ClientTest {
         }});
 
         client.start();
+        fakeMultiServer.sendMessageToClient("Hello new Client");
+        fakeMultiServer.receiveFromClient();
 
         synchroniser.waitUntil(status.is("finished"));
     }
@@ -84,28 +95,22 @@ public class ClientTest {
     public void receiveSecondMessage() throws Exception {
         final States status = context.states("status");
 
-        final FakeMultiServer server = new FakeMultiServer();
-        server.start();
-
-        messages = new ArrayList<>();
-        messages.add("Hello Client");
-        messages.add("You are client 1");
-
-        Client client = new Client("localhost", port, display, console);
-
         context.checking(new Expectations() {{
-            oneOf(display).show("Hello Client");
+            oneOf(display).show("Hello client 1");
             when(status.isNot("finished"));
 
             oneOf(console).write();
             will(returnValue("Hello Server"));
             when(status.isNot("finished"));
 
-            oneOf(display).show("You are client 1");
+            oneOf(display).show("Hello client 2");
             then(status.is("finished"));
         }});
-
         client.start();
+
+        fakeMultiServer.sendMessageToClient("Hello client 1");
+        fakeMultiServer.receiveFromClient();
+        fakeMultiServer.sendMessageToClient("Hello client 2");
 
         synchroniser.waitUntil(status.is("finished"));
     }

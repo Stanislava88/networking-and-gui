@@ -1,5 +1,7 @@
 package com.clouway.multiserver;
 
+import com.google.common.util.concurrent.AbstractExecutionThreadService;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -7,25 +9,23 @@ import java.net.Socket;
 /**
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
-public class MultiServer extends Thread {
+public class MultiServer extends AbstractExecutionThreadService {
     private final int port;
 
     private Display display;
-    private Notifier notifier;
 
     private ServerSocket serverSocket;
 
-    public MultiServer(int port, Display display, Notifier notifier) {
+    public MultiServer(int port, Display display) {
         this.port = port;
         this.display = display;
-        this.notifier = notifier;
     }
 
     @Override
     public void run() {
         try {
             serverSocket = new ServerSocket(port);
-            Dispatcher dispatcher = new Dispatcher(notifier);
+            Dispatcher dispatcher = new Dispatcher(display);
             Socket socket;
 
             while (true) {
@@ -44,6 +44,7 @@ public class MultiServer extends Thread {
         }
     }
 
+    @Override
     public void shutDown() throws IOException {
         serverSocket.close();
     }

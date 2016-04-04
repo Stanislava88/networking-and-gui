@@ -13,12 +13,7 @@ public class DemoServer {
             public void show(String message) {
                 System.out.println(message);
             }
-        }, new Notifier() {
-            @Override
-            public void notify(String message) {
-                System.out.println(message);
-            }
         });
-        server.start();
+        server.startAsync();
     }
 }

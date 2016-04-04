@@ -3,7 +3,6 @@ package clouway.com.multiserver;
 import com.clouway.multiserver.Display;
 import com.clouway.multiserver.MultiServer;
 
-import com.clouway.multiserver.Notifier;
 import org.jmock.Expectations;
 import org.jmock.States;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -32,13 +31,16 @@ public class ServerTest {
     }};
 
     private Display display = context.mock(Display.class);
-    private Notifier notifier = context.mock(Notifier.class);
 
     public class FakeClient {
+        private Socket socket;
+
+        public FakeClient() throws IOException {
+            socket = new Socket("localhost", port);
+        }
+
         public void connect() {
             try {
-                Socket socket = new Socket("localhost", port);
-
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 in.readLine();
             } catch (IOException e) {
@@ -48,8 +50,6 @@ public class ServerTest {
 
         public void send() {
             try {
-                Socket socket = new Socket("localhost", port);
-
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 out.println("Hello from  client .");
             } catch (IOException e) {
@@ -64,9 +64,8 @@ public class ServerTest {
 
     @Before
     public void setUp() throws Exception {
-        server = new MultiServer(port, display, notifier);
-
-        server.start();
+        server = new MultiServer(port, display);
+        server.startAsync().awaitRunning();
     }
 
     @After
@@ -78,14 +77,14 @@ public class ServerTest {
     public void happyPath() throws Exception {
         final States state = context.states("states");
 
-        FakeClient client = new FakeClient();
-
         context.checking(new Expectations() {{
             oneOf(display).show("You are client 1");
             then(state.is("finished"));
         }});
 
+        FakeClient client = new FakeClient();
         client.connect();
+
         synchroniser.waitUntil(state.is("finished"));
     }
 
@@ -93,21 +92,20 @@ public class ServerTest {
     public void multipleConnections() throws Exception {
         final States state = context.states("states");
 
-        FakeClient client1 = new FakeClient();
-        FakeClient client2 = new FakeClient();
-
         context.checking(new Expectations() {{
             oneOf(display).show("You are client 1");
             when(state.isNot("finished"));
 
-            oneOf(notifier).notify("Client 2is connected");
+            oneOf(display).show("Client 2is connected");
             when(state.isNot("finished"));
 
             oneOf(display).show("You are client 2");
             then(state.is("finished"));
         }});
 
+        FakeClient client1 = new FakeClient();
         client1.connect();
+        FakeClient client2 = new FakeClient();
         client2.connect();
 
         synchroniser.waitUntil(state.is("finished"));
@@ -117,8 +115,6 @@ public class ServerTest {
     public void receiveFromClient() throws Exception {
         final States state = context.states("states");
 
-        FakeClient client = new FakeClient();
-
         context.checking(new Expectations() {{
             oneOf(display).show("You are client 1");
             when(state.isNot("finished"));
@@ -127,11 +123,11 @@ public class ServerTest {
             then(state.is("finished"));
         }});
 
+        FakeClient client = new FakeClient();
         client.send();
         synchroniser.waitUntil(state.is("finished"));
     }
 }
-
 
 
 
