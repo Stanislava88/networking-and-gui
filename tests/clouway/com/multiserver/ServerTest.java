@@ -23,15 +23,6 @@ import java.net.Socket;
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
 public class ServerTest {
-    public Synchroniser synchroniser = new Synchroniser();
-
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery() {{
-        setThreadingPolicy(synchroniser);
-    }};
-
-    private Display display = context.mock(Display.class);
-
     class FakeClient {
         private Socket socket;
 
@@ -58,8 +49,16 @@ public class ServerTest {
         }
     }
 
-    private final int port = 3030;
+    public Synchroniser synchroniser = new Synchroniser();
 
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery() {{
+        setThreadingPolicy(synchroniser);
+    }};
+
+    private Display display = context.mock(Display.class);
+
+    private final int port = 3030;
     private MultiServer server;
 
     @Before

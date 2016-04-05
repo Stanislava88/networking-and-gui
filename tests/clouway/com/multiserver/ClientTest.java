@@ -22,16 +22,6 @@ import java.net.Socket;
  * @author Stanislava Kaukova(sisiivanovva@gmail.com)
  */
 public class ClientTest {
-    public Synchroniser synchroniser = new Synchroniser();
-
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery() {{
-        setThreadingPolicy(synchroniser);
-    }};
-
-    private Display display = context.mock(Display.class);
-    private Console console = context.mock(Console.class);
-
     class FakeMultiServer extends AbstractExecutionThreadService {
         private PrintWriter out;
         private BufferedReader in;
@@ -57,11 +47,21 @@ public class ClientTest {
         }
     }
 
+    public Synchroniser synchroniser = new Synchroniser();
+
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery() {{
+        setThreadingPolicy(synchroniser);
+    }};
+
+    private Display display = context.mock(Display.class);
+    private Console console = context.mock(Console.class);
+
+
     private final int port = 2020;
     private FakeMultiServer fakeMultiServer;
     private Client client;
-
-
+    
     @Before
     public void setUp() throws Exception {
         fakeMultiServer = new FakeMultiServer();
