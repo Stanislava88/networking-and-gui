@@ -22,7 +22,7 @@ public class MultiServer extends AbstractExecutionThreadService {
     }
 
     @Override
-    public void run() {
+    public void run() throws IOException {
         try {
             serverSocket = new ServerSocket(port);
             NotifyAgent notifyAgent = new NotifyAgent(display);
@@ -40,12 +40,14 @@ public class MultiServer extends AbstractExecutionThreadService {
                 client.start();
             }
         } catch (Exception e) {
-            e.getStackTrace();
+            serverSocket.close();
         }
     }
 
     @Override
     public void shutDown() throws IOException {
-        serverSocket.close();
+        if (serverSocket != null) {
+            serverSocket.close();
+        }
     }
 }

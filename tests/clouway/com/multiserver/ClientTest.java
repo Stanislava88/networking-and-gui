@@ -56,7 +56,7 @@ public class ClientTest {
 
     private Display display = context.mock(Display.class);
     private Console console = context.mock(Console.class);
-    
+
     private final int port = 2020;
     private FakeMultiServer fakeMultiServer;
     private Client client;
